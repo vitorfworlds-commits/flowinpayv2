@@ -43,6 +43,37 @@ interface CreatedKey {
     id: string;
 }
 
+// Maps friendly permission IDs → backend permission strings
+const PERMISSION_TO_BACKEND: Record<string, string[]> = {
+    payments: ['charge:create', 'charge:read', 'charge:cancel'],
+    webhooks: ['webhook:create'],
+    customers: ['customer:read'],
+    reports: ['balance:read'],
+    settings: ['withdrawal:create', 'withdrawal:read'],
+};
+
+// Maps backend permission strings → friendly permission IDs
+function backendToFrontend(perms: string[] | null): string[] {
+    if (!perms || !Array.isArray(perms)) return [];
+    if (perms.includes('*')) return ALL_PERMISSIONS.map(p => p.id);
+    const friendly = new Set<string>();
+    for (const bp of perms) {
+        for (const [fid, bps] of Object.entries(PERMISSION_TO_BACKEND)) {
+            if (bps.includes(bp)) friendly.add(fid);
+        }
+    }
+    return [...friendly];
+}
+
+function frontendToBackend(friendlyIds: string[]): string[] {
+    const out: string[] = [];
+    for (const fid of friendlyIds) {
+        const bps = PERMISSION_TO_BACKEND[fid];
+        if (bps) out.push(...bps);
+    }
+    return [...new Set(out)];
+}
+
 const ALL_PERMISSIONS = [
     { id: 'payments', label: 'Pagamentos', icon: Zap },
     { id: 'webhooks', label: 'Webhooks', icon: Globe },
@@ -121,7 +152,7 @@ function CreateKeyModal({ onClose, onCreated }: { onClose: () => void; onCreated
         if (!name.trim()) { setError('Informe um nome para a chave.'); return; }
         setSubmitting(true); setError('');
         try {
-            const { data } = await api.post('/api-keys', { name: name.trim(), permissions });
+            const { data } = await api.post('/api-keys', { name: name.trim(), permissions: frontendToBackend(permissions) });
             setCreatedKey(data.api_key || data);
         } catch (err: any) {
             setError(err.response?.data?.message || 'Erro ao criar chave.');
@@ -267,7 +298,13 @@ export default function ApiKeys() {
         try {
             const { data } = await api.get('/api-keys');
             const raw = data.api_keys || data.keys || data.data || data;
-            setKeys(Array.isArray(raw) ? raw : []);
+            const list = Array.isArray(raw) ? raw : [];
+            // Normalize: backend sends `status`, frontend expects `is_active` + `permissions` as friendly IDs
+            setKeys(list.map((k: any) => ({
+                ...k,
+                is_active: k.status === 'active',
+                permissions: backendToFrontend(k.permissions),
+            })));
         } catch { toast.error('Erro ao carregar API keys.'); }
         finally { setLoading(false); }
     }, []);
@@ -285,8 +322,9 @@ export default function ApiKeys() {
     const handleToggle = async (id: string) => {
         setTogglingId(id);
         try {
-            await api.patch(`/api-keys/${id}/toggle`);
-            setKeys(prev => prev.map(k => k.id === id ? { ...k, is_active: !k.is_active } : k));
+            const { data } = await api.patch(`/api-keys/${id}/toggle`);
+            const newStatus = data.api_key?.status;
+            setKeys(prev => prev.map(k => k.id === id ? { ...k, is_active: newStatus ? newStatus === 'active' : !k.is_active } : k));
             toast.success('Status atualizado!');
         } catch { toast.error('Erro ao alterar status.'); }
         finally { setTogglingId(null); }

@@ -19,6 +19,7 @@ class TransactionController extends Controller
             'min_amount' => 'nullable|numeric|min:0',
             'max_amount' => 'nullable|numeric|min:0',
             'search' => 'nullable|string|max:100',
+            'per_page' => 'nullable|integer|min:1|max:200',
         ]);
 
         $query = $request->user()->transactions();
@@ -51,7 +52,8 @@ class TransactionController extends Controller
             });
         }
 
-        $transactions = $query->orderBy('created_at', 'desc')->paginate(15);
+        $perPage = (int) ($validated['per_page'] ?? 15);
+        $transactions = $query->orderBy('created_at', 'desc')->paginate($perPage);
 
         return response()->json($transactions);
     }

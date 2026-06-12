@@ -93,7 +93,7 @@ export default function Withdrawals() {
     } finally { setLoading(false); }
   }, []);
 
-  useEffect(() => { fetchWithdrawals(1); }, [fetchWithdrawals]);
+  useEffect(() => { fetchWithdrawals(1); fetchUser(); }, [fetchWithdrawals, fetchUser]);
 
   const resetCreate = () => {
     setShowCreate(false); setCreateStep(0);

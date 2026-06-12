@@ -154,6 +154,7 @@ function CreateKeyModal({ onClose, onCreated }: { onClose: () => void; onCreated
         try {
             const { data } = await api.post('/api-keys', { name: name.trim(), permissions: frontendToBackend(permissions) });
             setCreatedKey(data.api_key || data);
+            onCreated();
         } catch (err: any) {
             setError(err.response?.data?.message || 'Erro ao criar chave.');
         } finally { setSubmitting(false); }

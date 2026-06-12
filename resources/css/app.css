@@ -979,6 +979,26 @@ body {
 @media (max-width: 1024px) {
   .dash-grid { grid-template-columns: 1fr; }
 }
+/* evita que o SVG do gráfico force a coluna a ficar mais larga que a tela */
+.dash-grid > * { min-width: 0; }
+.dash-panel { padding: 24px; }
+.dash-activity {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  min-height: 460px;
+}
+.dash-chart-box {
+  width: 100%;
+  height: 320px;
+  min-height: 240px;
+  overflow: hidden;
+}
+@media (max-width: 640px) {
+  .dash-panel { padding: 16px; }
+  .dash-activity { padding: 16px; min-height: 0; }
+  .dash-chart-box { height: 230px; }
+}
 .chart-header-row {
   display: flex;
   flex-direction: column;

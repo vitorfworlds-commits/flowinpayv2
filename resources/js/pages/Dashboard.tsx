@@ -455,7 +455,7 @@ export default function Dashboard() {
             {/* CHART + TRANSACTIONS */}
             <div className="dash-grid">
                 {/* Chart */}
-                <div className="card" style={{ padding: 24 }}>
+                <div className="card dash-panel">
                     <div className="chart-header-row">
                         <div>
                             <div className="chart-total-label">Receita Total</div>
@@ -473,7 +473,7 @@ export default function Dashboard() {
                             ))}
                         </div>
                     </div>
-                    <div style={{ width: '100%', height: 320, minHeight: 240 }}>
+                    <div className="dash-chart-box">
                         <ResponsiveContainer width="100%" height="100%">
                             <AreaChart data={chartData} margin={{ top: 8, right: 8, left: -20, bottom: 0 }}>
                                 <defs>
@@ -485,13 +485,12 @@ export default function Dashboard() {
                                 <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
                                 <XAxis
                                     dataKey="label"
-                                    tick={{ fontSize: 11, fill: 'hsl(var(--muted-foreground))', fontWeight: 500 }}
+                                    tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))', fontWeight: 500 }}
                                     axisLine={false}
                                     tickLine={false}
-                                    interval={chartPeriod === '30d' ? 4 : chartPeriod === 'today' || chartPeriod === 'yesterday' ? 2 : 0}
-                                    angle={chartPeriod === '30d' ? -45 : chartPeriod === 'today' || chartPeriod === 'yesterday' ? -30 : 0}
-                                    textAnchor={chartPeriod === '30d' || chartPeriod === 'today' || chartPeriod === 'yesterday' ? 'end' : 'middle'}
-                                    height={chartPeriod === '30d' ? 50 : chartPeriod === 'today' || chartPeriod === 'yesterday' ? 40 : 30}
+                                    interval="preserveStartEnd"
+                                    minTickGap={chartPeriod === 'today' || chartPeriod === 'yesterday' ? 32 : 18}
+                                    height={28}
                                 />
                                 <YAxis
                                     tick={{ fontSize: 11, fill: 'hsl(var(--muted-foreground))', fontWeight: 500 }}
@@ -522,7 +521,7 @@ export default function Dashboard() {
                 </div>
 
                 {/* Recent Transactions */}
-                <div className="card" style={{ padding: 20, display: 'flex', flexDirection: 'column', minHeight: 460 }}>
+                <div className="card dash-activity">
                     <div className="flex items-center justify-between mb-4 px-2">
                         <h3 className="section-title flex items-center gap-2">
                             <Activity size={16} className="text-[hsl(var(--primary))]" />

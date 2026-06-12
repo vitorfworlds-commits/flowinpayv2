@@ -1429,6 +1429,15 @@ body {
    ============================================================ */
 .mobile-menu-btn { display: none; }
 
+/* Barra superior fixa (mobile) */
+.app-mobile-topbar { display: none; }
+.app-mobile-brand { display: flex; align-items: center; gap: 9px; font-size: 15px; font-weight: 700; letter-spacing: -0.01em; }
+.app-mobile-brand-icon {
+  width: 30px; height: 30px; border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  color: #fff; font-weight: 800; font-size: 15px; flex-shrink: 0;
+}
+
 /* ============================================================
    MOBILE BACKDROP
    ============================================================ */
@@ -1450,10 +1459,23 @@ body {
     width: 280px;
     box-shadow: 16px 0 40px rgb(0 0 0 / 0.3);
   }
-  .app-main { margin-left: 0 !important; padding: 20px 16px; }
+  .app-main { margin-left: 0 !important; padding: 76px 16px 24px; }
   .app-header { padding: 0 16px; height: 56px; }
   .hide-mobile { display: none !important; }
-  .mobile-menu-btn { display: inline-flex !important; }
+  .mobile-menu-btn { display: none !important; }
+  .app-mobile-topbar {
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    position: fixed; top: 0; left: 0; right: 0; z-index: 36;
+    height: 56px; padding: 0 10px 0 16px;
+    background: hsl(var(--card) / 0.92);
+    border-bottom: 1px solid hsl(var(--border));
+    backdrop-filter: blur(16px) saturate(1.8);
+    -webkit-backdrop-filter: blur(16px) saturate(1.8);
+  }
+  .filters-bar { flex-direction: column; align-items: stretch !important; }
+  .filters-bar > * { width: 100% !important; min-width: 0 !important; }
+  .filters-bar .select { width: 100% !important; }
+  .filters-bar input[type="date"] { flex: 1 1 0; min-width: 0; }
 
   .table-wrap { overflow: visible; }
   .table-scroll { overflow-x: auto; }
@@ -1526,7 +1548,7 @@ body {
    RESPONSIVE — 320px
    ============================================================ */
 @media (max-width: 320px) {
-  .app-main { padding: 12px 8px; }
+  .app-main { padding: 70px 8px 16px; }
   .auth-form-card { padding: 16px; }
   .card { border-radius: 8px; }
   .page-title { font-size: 16px; }

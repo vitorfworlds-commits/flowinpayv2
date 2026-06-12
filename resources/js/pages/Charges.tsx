@@ -219,7 +219,7 @@ export default function Charges() {
       </div>
 
       {/* TOOLBAR */}
-      <div style={{
+      <div className="filters-bar" style={{
         display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap',
         padding: '14px 18px', borderRadius: 'var(--radius)',
         background: 'hsl(var(--card))', border: '1px solid hsl(var(--border))',

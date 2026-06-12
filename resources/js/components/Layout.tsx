@@ -55,6 +55,21 @@ export default function Layout() {
                 )}
             </AnimatePresence>
 
+            {/* Barra fixa no topo — mobile */}
+            <header className="app-mobile-topbar">
+                <div className="app-mobile-brand">
+                    <div className="gradient-green app-mobile-brand-icon"><span>F</span></div>
+                    <span>FlowinPay</span>
+                </div>
+                <button
+                    className="btn-icon"
+                    onClick={() => setMobileOpen((p) => !p)}
+                    aria-label="Menu"
+                >
+                    {mobileOpen ? <X size={20} /> : <Menu size={20} />}
+                </button>
+            </header>
+
             <Sidebar
                 collapsed={collapsed}
                 onToggle={toggle}
@@ -63,20 +78,6 @@ export default function Layout() {
             />
 
             <main className={`app-main ${collapsed ? 'sidebar-collapsed' : 'sidebar-expanded'}`}>
-                {/* Mobile menu button */}
-                <button
-                    className="btn-icon mobile-menu-btn"
-                    onClick={() => setMobileOpen((p) => !p)}
-                    style={{
-                        position: 'fixed', top: 14, left: 14, zIndex: 30,
-                        background: 'hsl(var(--card))',
-                        border: '1px solid hsl(var(--border))',
-                        boxShadow: '0 2px 8px rgb(0 0 0 / 0.15)',
-                    }}
-                >
-                    {mobileOpen ? <X size={20} /> : <Menu size={20} />}
-                </button>
-
                 <motion.div
                     key={location.pathname}
                     initial={{ opacity: 0, y: 12 }}

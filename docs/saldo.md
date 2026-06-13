@@ -30,7 +30,7 @@ GET /api/v1/balance
 
 ```bash
 curl -X GET "https://app.flowinpay.com/api/v1/balance" \
-  -H "Authorization: Bearer fp_xxxx" \
+  -H "X-Api-Key: fpk_xxxx" \
   -H "Accept: application/json"
 ```
 
@@ -78,6 +78,6 @@ GET /api/v1/summary
 
 ```bash
 curl -X GET "https://app.flowinpay.com/api/v1/summary" \
-  -H "Authorization: Bearer fp_xxxx" \
+  -H "X-Api-Key: fpk_xxxx" \
   -H "Accept: application/json"
 ```

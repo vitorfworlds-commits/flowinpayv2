@@ -21,7 +21,7 @@ POST /api/v1/withdrawals
 
 ```bash
 curl -X POST "https://app.flowinpay.com/api/v1/withdrawals" \
-  -H "Authorization: Bearer fp_xxxx" \
+  -H "X-Api-Key: fpk_xxxx" \
   -H "Content-Type: application/json" \
   -d '{
     "value": 100.00,

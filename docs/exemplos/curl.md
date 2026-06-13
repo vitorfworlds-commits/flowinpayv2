@@ -5,7 +5,7 @@
 ```bash
 # Variáveis de ambiente
 API_URL="https://app.flowinpay.com/api"
-API_KEY="fp_xxxxxxxxxxxxxxxx"
+API_KEY="fpk_xxxxxxxxxxxxxxxx"
 ```
 
 ---
@@ -28,7 +28,7 @@ curl -X POST "$API_URL/login" \
 
 ```bash
 curl -X GET "$API_URL/me" \
-  -H "Authorization: Bearer $API_KEY" \
+  -H "X-Api-Key: $API_KEY" \
   -H "Accept: application/json"
 ```
 
@@ -55,7 +55,7 @@ curl -X POST "$API_URL/v1/charges" \
 
 ```bash
 curl -X POST "$API_URL/v1/charges" \
-  -H "Authorization: Bearer $API_KEY" \
+  -H "X-Api-Key: $API_KEY" \
   -H "Content-Type: application/json" \
   -H "Accept: application/json" \
   -d '{
@@ -72,7 +72,7 @@ curl -X POST "$API_URL/v1/charges" \
 
 ```bash
 curl -X GET "$API_URL/v1/charges" \
-  -H "Authorization: Bearer $API_KEY" \
+  -H "X-Api-Key: $API_KEY" \
   -H "Accept: application/json"
 ```
 
@@ -80,7 +80,7 @@ curl -X GET "$API_URL/v1/charges" \
 
 ```bash
 curl -X GET "$API_URL/v1/charges?status=active&page=1" \
-  -H "Authorization: Bearer $API_KEY" \
+  -H "X-Api-Key: $API_KEY" \
   -H "Accept: application/json"
 ```
 
@@ -88,7 +88,7 @@ curl -X GET "$API_URL/v1/charges?status=active&page=1" \
 
 ```bash
 curl -X GET "$API_URL/v1/charges/42" \
-  -H "Authorization: Bearer $API_KEY" \
+  -H "X-Api-Key: $API_KEY" \
   -H "Accept: application/json"
 ```
 
@@ -96,7 +96,7 @@ curl -X GET "$API_URL/v1/charges/42" \
 
 ```bash
 curl -X POST "$API_URL/v1/charges/42/cancel" \
-  -H "Authorization: Bearer $API_KEY" \
+  -H "X-Api-Key: $API_KEY" \
   -H "Accept: application/json"
 ```
 
@@ -108,7 +108,7 @@ curl -X POST "$API_URL/v1/charges/42/cancel" \
 
 ```bash
 curl -X GET "$API_URL/v1/balance" \
-  -H "Authorization: Bearer $API_KEY" \
+  -H "X-Api-Key: $API_KEY" \
   -H "Accept: application/json"
 ```
 
@@ -116,7 +116,7 @@ curl -X GET "$API_URL/v1/balance" \
 
 ```bash
 curl -X GET "$API_URL/v1/summary" \
-  -H "Authorization: Bearer $API_KEY" \
+  -H "X-Api-Key: $API_KEY" \
   -H "Accept: application/json"
 ```
 
@@ -128,7 +128,7 @@ curl -X GET "$API_URL/v1/summary" \
 
 ```bash
 curl -X GET "$API_URL/v1/transactions" \
-  -H "Authorization: Bearer $API_KEY" \
+  -H "X-Api-Key: $API_KEY" \
   -H "Accept: application/json"
 ```
 
@@ -136,7 +136,7 @@ curl -X GET "$API_URL/v1/transactions" \
 
 ```bash
 curl -X GET "$API_URL/v1/transactions?type=charge_received&start_date=2026-06-01&end_date=2026-06-30" \
-  -H "Authorization: Bearer $API_KEY" \
+  -H "X-Api-Key: $API_KEY" \
   -H "Accept: application/json"
 ```
 
@@ -148,7 +148,7 @@ curl -X GET "$API_URL/v1/transactions?type=charge_received&start_date=2026-06-01
 
 ```bash
 curl -X POST "$API_URL/v1/withdrawals" \
-  -H "Authorization: Bearer $API_KEY" \
+  -H "X-Api-Key: $API_KEY" \
   -H "Content-Type: application/json" \
   -H "Accept: application/json" \
   -d '{
@@ -163,7 +163,7 @@ curl -X POST "$API_URL/v1/withdrawals" \
 
 ```bash
 curl -X GET "$API_URL/v1/withdrawals" \
-  -H "Authorization: Bearer $API_KEY" \
+  -H "X-Api-Key: $API_KEY" \
   -H "Accept: application/json"
 ```
 
@@ -175,7 +175,7 @@ curl -X GET "$API_URL/v1/withdrawals" \
 
 ```bash
 curl -X POST "$API_URL/webhooks" \
-  -H "Authorization: Bearer $API_KEY" \
+  -H "X-Api-Key: $API_KEY" \
   -H "Content-Type: application/json" \
   -H "Accept: application/json" \
   -d '{
@@ -189,7 +189,7 @@ curl -X POST "$API_URL/webhooks" \
 
 ```bash
 curl -X GET "$API_URL/webhooks" \
-  -H "Authorization: Bearer $API_KEY" \
+  -H "X-Api-Key: $API_KEY" \
   -H "Accept: application/json"
 ```
 
@@ -197,7 +197,7 @@ curl -X GET "$API_URL/webhooks" \
 
 ```bash
 curl -X POST "$API_URL/webhooks/1/test" \
-  -H "Authorization: Bearer $API_KEY" \
+  -H "X-Api-Key: $API_KEY" \
   -H "Accept: application/json"
 ```
 

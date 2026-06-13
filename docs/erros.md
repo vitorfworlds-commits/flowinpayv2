@@ -38,17 +38,14 @@ A API FlowinPay utiliza códigos de status HTTP padrão e retorna erros em forma
 ```
 
 **Causas:**
-- Token ausente no header `Authorization`
-- Token inválido ou expirado
-- Formato incorreto (use `Bearer fp_xxxx`)
+- App ID ausente no header `X-Api-Key`
+- App ID inválida ou revogada
+- Formato incorreto (use `X-Api-Key: fpk_xxxx`)
 
 **Solução:**
 ```bash
-# Verifique se o token está correto
-curl -H "Authorization: Bearer fp_xxxx" ...
-
-# Gere um novo token se necessário
-curl -X POST "/api/v1/auth/login" ...
+# Verifique se a App ID está correta e ativa no painel
+curl -H "X-Api-Key: fpk_xxxx" "https://app.flowinpay.com/api/v1/balance"
 ```
 
 ---
@@ -219,7 +216,7 @@ async function createCharge(data) {
     const response = await fetch('/api/v1/charges', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${apiKey}`,
+        'X-Api-Key': apiKey,
         'Content-Type': 'application/json'
       },
       body: JSON.stringify(data)
@@ -261,7 +258,7 @@ function createCharge(array $data): array {
         CURLOPT_POST => true,
         CURLOPT_POSTFIELDS => json_encode($data),
         CURLOPT_HTTPHEADER => [
-            'Authorization: Bearer ' . env('FLOWINPAY_API_KEY'),
+            'X-Api-Key: ' . env('FLOWINPAY_API_KEY'),
             'Content-Type: application/json',
             'Accept: application/json',
         ],

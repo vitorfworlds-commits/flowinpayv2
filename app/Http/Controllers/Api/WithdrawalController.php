@@ -34,7 +34,9 @@ class WithdrawalController extends Controller
         $validated = $request->validated();
 
         $fee = FeeConfig::getActive();
-        $acquirer = Acquirer::findOrFail($validated['acquirer_id']);
+        $acquirer = $validated['acquirer_id']
+            ? Acquirer::findOrFail($validated['acquirer_id'])
+            : Acquirer::where('is_active', true)->firstOrFail();
 
         if (!$acquirer->isActive()) {
             return response()->json([

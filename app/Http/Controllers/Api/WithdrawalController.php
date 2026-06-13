@@ -114,102 +114,22 @@ class WithdrawalController extends Controller
             ], 422);
         }
 
-        // Chamar API real da OpenPix pra transferir
-        try {
-            $service = AcquirerFactory::make($acquirer);
+        // Saque fica como 'pending' para processamento manual pelo admin
+        // (OpenPix/Woovi não tem API de transferência/saque)
+        AuditLog::log('withdrawal_requested', $withdrawal, null, [
+            'value' => $value,
+            'fee' => $feeValue,
+            'net_value' => $netValue,
+            'pix_key_type' => $validated['pix_key_type'],
+        ]);
 
-            // Sacar da conta principal
-            $response = $service->createWithdrawal(
-                $validated['pix_key'],
-                $validated['pix_key_type'],
-                $netValue
-            );
-
-            $transferData = $response['transaction'] ?? $response;
-            $withdrawal->update([
-                'status' => 'processing',
-                'transaction_id' => $transferData['correlationID'] ?? $transferData['transactionID'] ?? null,
-                'acquirer_response' => json_encode($transferData),
-            ]);
-
-            AuditLog::log('withdrawal_requested', $withdrawal, null, [
-                'value' => $value,
-                'fee' => $feeValue,
+        return response()->json([
+            'withdrawal' => $withdrawal->fresh('acquirer'),
+            'fee' => [
+                'fee_value' => $feeValue,
                 'net_value' => $netValue,
-                'pix_key_type' => $validated['pix_key_type'],
-            ]);
-
-            return response()->json([
-                'withdrawal' => $withdrawal->fresh('acquirer'),
-                'fee' => [
-                    'fee_value' => $feeValue,
-                    'net_value' => $netValue,
-                ],
-            ], 201);
-
-        } catch (\Illuminate\Http\Client\ConnectionException $e) {
-            // Timeout: withdrawal MAY have been processed — don't return balance
-            Log::error('Withdrawal timeout — may have been processed', [
-                'withdrawal_id' => $withdrawal->id,
-                'acquirer' => $acquirer->slug,
-                'error' => $e->getMessage(),
-            ]);
-
-            // IMPORTANTE: status 'processing' (não 'pending') — o PIX PODE ter sido
-            // enviado pela adquirente. Deixar como 'pending' permitiria ao usuário
-            // cancelar e receber o saldo de volta tendo já recebido o PIX (double-spend).
-            // 'processing' não é cancelável; resolução fica para reconciliação/webhook.
-            $withdrawal->update([
-                'status' => 'processing',
-                'acquirer_response' => json_encode(['error' => 'timeout', 'message' => $e->getMessage()]),
-            ]);
-
-            AuditLog::log('withdrawal_timeout', $withdrawal, null, [
-                'message' => 'Timeout — saldo mantido bloqueado até reconciliação',
-            ]);
-
-            return response()->json([
-                'message' => 'Saque em processamento. Aguarde a confirmação.',
-                'withdrawal' => $withdrawal->fresh('acquirer'),
-            ], 202);
-
-        } catch (\Exception $e) {
-            Log::error('Failed to process withdrawal on acquirer', [
-                'withdrawal_id' => $withdrawal->id,
-                'acquirer' => $acquirer->slug,
-                'error' => $e->getMessage(),
-            ]);
-
-            // Devolver saldo em caso de falha definitiva (não timeout)
-            DB::transaction(function () use ($withdrawal, $request) {
-                $user = User::lockForUpdate()->findOrFail($request->user()->id);
-                $user->forceFill([
-                    'balance' => $user->balance + $withdrawal->value,
-                    'balance_blocked' => $user->balance_blocked - $withdrawal->value,
-                ])->save();
-
-                $withdrawal->update([
-                    'status' => 'failed',
-                    'acquirer_response' => json_encode(['error' => $e->getMessage()]),
-                ]);
-
-                Transaction::create([
-                    'user_id' => $user->id,
-                    'type' => 'adjustment',
-                    'amount' => $withdrawal->value,
-                    'balance_before' => $user->balance - $withdrawal->value,
-                    'balance_after' => $user->balance,
-                    'reference_type' => Withdrawal::class,
-                    'reference_id' => $withdrawal->id,
-                    'description' => 'Saque falhou - saldo devolvido',
-                ]);
-            });
-
-            return response()->json([
-                'message' => 'Erro ao processar saque na adquirente',
-                'error' => config('app.debug') ? $e->getMessage() : null,
-            ], 500);
-        }
+            ],
+        ], 201);
     }
 
     public function show(Request $request, string $id): JsonResponse

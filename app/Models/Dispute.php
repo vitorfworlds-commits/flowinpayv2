@@ -18,6 +18,8 @@ class Dispute extends Model
         'amount' => 'decimal:2',
         'due_at' => 'datetime',
         'resolved_at' => 'datetime',
+        'evidence_sent_at' => 'datetime',
+        'auto_defense' => 'boolean',
         'evidence' => 'json',
     ];
 

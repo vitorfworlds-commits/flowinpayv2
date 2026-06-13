@@ -20,7 +20,7 @@ POST /api/v1/withdrawals
 ### Exemplo
 
 ```bash
-curl -X POST "https://app.flowinpay.com/api/v1/withdrawals" \
+curl -X POST "https://app.flowinpay.com.br/api/v1/withdrawals" \
   -H "X-Api-Key: fpk_xxxx" \
   -H "Content-Type: application/json" \
   -d '{

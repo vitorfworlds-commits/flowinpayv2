@@ -19,7 +19,7 @@
 
 | Informação | Valor |
 |---|---|
-| Base URL | `https://app.flowinpay.com/api/v1` |
+| Base URL | `https://app.flowinpay.com.br/api/v1` |
 | Formato | JSON |
 | Autenticação | API Key via header `X-Api-Key` |
 | Timeout Webhooks | 5 segundos |

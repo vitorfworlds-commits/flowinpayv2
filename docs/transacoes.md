@@ -55,7 +55,7 @@ GET /api/v1/transactions
 ### Exemplo
 
 ```bash
-curl -X GET "https://app.flowinpay.com/api/v1/transactions?type=charge_received&start_date=2026-06-01" \
+curl -X GET "https://app.flowinpay.com.br/api/v1/transactions?type=charge_received&start_date=2026-06-01" \
   -H "X-Api-Key: fpk_xxxx" \
   -H "Accept: application/json"
 ```

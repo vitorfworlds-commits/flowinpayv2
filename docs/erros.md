@@ -45,7 +45,7 @@ A API FlowinPay utiliza códigos de status HTTP padrão e retorna erros em forma
 **Solução:**
 ```bash
 # Verifique se a App ID está correta e ativa no painel
-curl -H "X-Api-Key: fpk_xxxx" "https://app.flowinpay.com/api/v1/balance"
+curl -H "X-Api-Key: fpk_xxxx" "https://app.flowinpay.com.br/api/v1/balance"
 ```
 
 ---
@@ -252,7 +252,7 @@ async function createCharge(data) {
 
 ```php
 function createCharge(array $data): array {
-    $ch = curl_init('https://app.flowinpay.com/api/v1/charges');
+    $ch = curl_init('https://app.flowinpay.com.br/api/v1/charges');
     
     curl_setopt_array($ch, [
         CURLOPT_POST => true,

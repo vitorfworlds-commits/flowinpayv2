@@ -33,7 +33,7 @@ POST /api/v1/charges
 ### Exemplo
 
 ```bash
-curl -X POST "https://app.flowinpay.com/api/v1/charges" \
+curl -X POST "https://app.flowinpay.com.br/api/v1/charges" \
   -H "X-Api-Key: fp_xxxx" \
   -H "Content-Type: application/json" \
   -d '{
@@ -60,7 +60,7 @@ curl -X POST "https://app.flowinpay.com/api/v1/charges" \
     "fee_value": "2.00",
     "status": "active",
     "br_code": "00020101021226580014br.gov.bcb.pix...",
-    "payment_link_url": "https://app.flowinpay.com/pay/a1b2c3d4...",
+    "payment_link_url": "https://app.flowinpay.com.br/pay/a1b2c3d4...",
     "expires_at": "2026-06-06T13:00:00Z"
   }
 }
@@ -131,7 +131,7 @@ GET /api/v1/charges/{id}
     "fee_percent": "2.00",
     "status": "paid",
     "br_code": "00020101021226580014br.gov.bcb.pix...",
-    "payment_link_url": "https://app.flowinpay.com/pay/a1b2c3d4...",
+    "payment_link_url": "https://app.flowinpay.com.br/pay/a1b2c3d4...",
     "description": "Pedido #123",
     "customer_name": "João Silva",
     "paid_at": "2026-06-05T14:30:00Z",

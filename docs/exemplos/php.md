@@ -151,7 +151,7 @@ class FlowinPay
 require_once 'FlowinPay.php';
 
 $flowinpay = new FlowinPay(
-    'https://app.flowinpay.com/api',
+    'https://app.flowinpay.com.br/api',
     'fp_xxxxxxxxxxxxxxxx'
 );
 

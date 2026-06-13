@@ -4,7 +4,7 @@
 
 ```bash
 # Variáveis de ambiente
-API_URL="https://app.flowinpay.com/api"
+API_URL="https://app.flowinpay.com.br/api"
 API_KEY="fpk_xxxxxxxxxxxxxxxx"
 ```
 

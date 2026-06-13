@@ -37,7 +37,7 @@ POST /api/v1/webhooks
 ### Exemplo
 
 ```bash
-curl -X POST "https://app.flowinpay.com/api/v1/webhooks" \
+curl -X POST "https://app.flowinpay.com.br/api/v1/webhooks" \
   -H "X-Api-Key: fp_xxxx" \
   -H "Content-Type: application/json" \
   -d '{
@@ -253,7 +253,7 @@ Após 5 tentativas, o webhook é marcado como falho.
 Ao criar uma cobrança via API com `callbackUrl`, a FlowinPay cria automaticamente um webhook na sua conta. Não é necessário criar webhook manualmente — basta passar a URL no momento da cobrança.
 
 ```bash
-curl -X POST "https://app.flowinpay.com/api/v1/charges" \
+curl -X POST "https://app.flowinpay.com.br/api/v1/charges" \
   -H "X-Api-Key: fp_xxxx" \
   -H "Content-Type: application/json" \
   -d '{

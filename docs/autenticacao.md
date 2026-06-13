@@ -4,7 +4,7 @@ A API FlowinPay utiliza uma **App ID** (API Key) para autenticação. Todas as r
 
 ## Gerar a App ID
 
-1. Acesse o painel em `https://app.flowinpay.com/api-keys`
+1. Acesse o painel em `https://app.flowinpay.com.br/api-keys`
 2. Clique em **Nova chave**
 3. Defina um nome e as permissões desejadas
 4. Copie a **App ID** gerada (formato: `fpk_xxxxxxxxxxxxxxxx`)
@@ -22,7 +22,7 @@ X-Api-Key: fpk_xxxxxxxxxxxxxxxx
 ### Exemplo
 
 ```bash
-curl -X GET "https://app.flowinpay.com/api/v1/balance" \
+curl -X GET "https://app.flowinpay.com.br/api/v1/balance" \
   -H "X-Api-Key: fpk_xxxxxxxxxxxxxxxx" \
   -H "Accept: application/json"
 ```
@@ -50,7 +50,7 @@ Opcionalmente, a App ID pode ser restrita a uma lista de IPs autorizados. Requis
 O painel administrativo usa um **Bearer Token** gerado no login — **diferente** da App ID da API:
 
 ```bash
-curl -X POST "https://app.flowinpay.com/api/login" \
+curl -X POST "https://app.flowinpay.com.br/api/login" \
   -H "Content-Type: application/json" \
   -H "Accept: application/json" \
   -d '{"email":"usuario@email.com","password":"senha123"}'

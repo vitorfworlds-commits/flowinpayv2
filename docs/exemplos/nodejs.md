@@ -4,7 +4,7 @@
 
 ```javascript
 // flowinpay.js
-const BASE_URL = 'https://app.flowinpay.com/api';
+const BASE_URL = 'https://app.flowinpay.com.br/api';
 const API_KEY = 'fp_xxxxxxxxxxxxxxxx';
 
 async function request(method, path, body = null) {
@@ -283,7 +283,7 @@ class FlowinPayClient {
 
 // Uso
 const client = new FlowinPayClient(
-  'https://app.flowinpay.com/api',
+  'https://app.flowinpay.com.br/api',
   'fp_xxxxxxxxxxxxxxxx'
 );
 

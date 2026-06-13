@@ -29,7 +29,7 @@ GET /api/v1/balance
 ### Exemplo
 
 ```bash
-curl -X GET "https://app.flowinpay.com/api/v1/balance" \
+curl -X GET "https://app.flowinpay.com.br/api/v1/balance" \
   -H "X-Api-Key: fpk_xxxx" \
   -H "Accept: application/json"
 ```
@@ -77,7 +77,7 @@ GET /api/v1/summary
 ### Exemplo
 
 ```bash
-curl -X GET "https://app.flowinpay.com/api/v1/summary" \
+curl -X GET "https://app.flowinpay.com.br/api/v1/summary" \
   -H "X-Api-Key: fpk_xxxx" \
   -H "Accept: application/json"
 ```

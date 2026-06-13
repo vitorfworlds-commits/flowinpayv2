@@ -22,7 +22,7 @@ Você pode configurar a URL de webhook de duas formas:
 Ao criar uma cobrança, passe `webhook_url` no body:
 
 ```bash
-curl -X POST "https://app.flowinpay.com/api/v1/charges" \
+curl -X POST "https://app.flowinpay.com.br/api/v1/charges" \
   -H "X-Api-Key: fp_xxxx" \
   -H "Content-Type: application/json" \
   -d '{
@@ -416,7 +416,7 @@ end
 
 ### Teste via API
 ```bash
-curl -X POST "https://app.flowinpay.com/api/v1/webhooks/1/test" \
+curl -X POST "https://app.flowinpay.com.br/api/v1/webhooks/1/test" \
   -H "X-Api-Key: fp_xxxx"
 ```
 

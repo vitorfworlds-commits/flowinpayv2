@@ -107,12 +107,12 @@ function Intro({ lang, setLang }: { lang: string; setLang: (l: string) => void }
     <H2>Início Rápido</H2>
     <LangSelector lang={lang} setLang={setLang} />
     <MultiCode lang={lang} examples={{
-      curl: `curl -X POST "https://app.flowinpay.com/api/v1/charges" \\
+      curl: `curl -X POST "https://app.flowinpay.com.br/api/v1/charges" \\
   -H "X-Api-Key: fp_SUA_CHAVE" \\
   -H "Content-Type: application/json" \\
   -d '{"value": 50.00, "description": "Plano Pro", "acquirer_id": 1}'`,
       php: `<?php
-$ch = curl_init('https://app.flowinpay.com/api/v1/charges');
+$ch = curl_init('https://app.flowinpay.com.br/api/v1/charges');
 curl_setopt_array($ch, [
     CURLOPT_POST => true, CURLOPT_RETURNTRANSFER => true,
     CURLOPT_HTTPHEADER => ['X-Api-Key: fp_SUA_CHAVE', 'Content-Type: application/json'],
@@ -120,7 +120,7 @@ curl_setopt_array($ch, [
 ]);
 $result = json_decode(curl_exec($ch), true);
 echo $result['charge']['payment_link_url'];`,
-      node: `const res = await fetch('https://app.flowinpay.com/api/v1/charges', {
+      node: `const res = await fetch('https://app.flowinpay.com.br/api/v1/charges', {
   method: 'POST',
   headers: { 'X-Api-Key': 'fp_SUA_CHAVE', 'Content-Type': 'application/json' },
   body: JSON.stringify({ value: 50, acquirer_id: 1, description: 'Plano Pro' }),
@@ -128,28 +128,28 @@ echo $result['charge']['payment_link_url'];`,
 const { charge } = await res.json();
 console.log(charge.payment_link_url);`,
       python: `import requests
-r = requests.post('https://app.flowinpay.com/api/v1/charges',
+r = requests.post('https://app.flowinpay.com.br/api/v1/charges',
     headers={'X-Api-Key': 'fp_SUA_CHAVE'},
     json={'value': 50, 'acquirer_id': 1, 'description': 'Plano Pro'})
 print(r.json()['charge']['payment_link_url'])`,
       java: `var req = HttpRequest.newBuilder()
-    .uri(URI.create("https://app.flowinpay.com/api/v1/charges"))
+    .uri(URI.create("https://app.flowinpay.com.br/api/v1/charges"))
     .header("X-Api-Key", "fp_SUA_CHAVE")
     .header("Content-Type", "application/json")
     .POST(BodyPublishers.ofString("{\\"value\\":50,\\"acquirer_id\\":1,\\"description\\":\\"Plano Pro\\"}"))
     .build();`,
       go: `body := \`{"value":50,"acquirer_id":1,"description":"Plano Pro"}\`
-req, _ := http.NewRequest("POST", "https://app.flowinpay.com/api/v1/charges", strings.NewReader(body))
+req, _ := http.NewRequest("POST", "https://app.flowinpay.com.br/api/v1/charges", strings.NewReader(body))
 req.Header.Set("X-Api-Key", "fp_SUA_CHAVE")
 req.Header.Set("Content-Type", "application/json")`,
-      csharp: `var res = await client.PostAsJsonAsync("https://app.flowinpay.com/api/v1/charges",
+      csharp: `var res = await client.PostAsJsonAsync("https://app.flowinpay.com.br/api/v1/charges",
     new { value = 50, acquirer_id = 1, description = "Plano Pro" });`,
-      ruby: `uri = URI('https://app.flowinpay.com/api/v1/charges')
+      ruby: `uri = URI('https://app.flowinpay.com.br/api/v1/charges')
 req = Net::HTTP::Post.new(uri, 'X-Api-Key' => 'fp_SUA_CHAVE', 'Content-Type' => 'application/json')
 req.body = { value: 50, acquirer_id: 1, description: 'Plano Pro' }.to_json`,
     }} />
     <H2>Base URL</H2>
-    <CodeBlock lang="text">https://app.flowinpay.com/api/v1</CodeBlock>
+    <CodeBlock lang="text">https://app.flowinpay.com.br/api/v1</CodeBlock>
     <H2>Rate Limits</H2>
     <ParamTable params={[
       { name: 'Cobranças', type: '30/min', required: false, desc: 'Criação de cobranças' },
@@ -168,33 +168,33 @@ function Auth({ lang, setLang }: { lang: string; setLang: (l: string) => void })
     <H2>Login</H2>
     <LangSelector lang={lang} setLang={setLang} />
     <MultiCode lang={lang} examples={{
-      curl: `curl -X POST "https://app.flowinpay.com/api/login" \\
+      curl: `curl -X POST "https://app.flowinpay.com.br/api/login" \\
   -H "Content-Type: application/json" \\
   -d '{"email":"user@email.com","password":"senha123"}'`,
-      php: `$ch = curl_init('https://app.flowinpay.com/api/login');
+      php: `$ch = curl_init('https://app.flowinpay.com.br/api/login');
 curl_setopt_array($ch, [CURLOPT_POST=>true, CURLOPT_RETURNTRANSFER=>true,
     CURLOPT_HTTPHEADER=>['Content-Type: application/json'],
     CURLOPT_POSTFIELDS=>json_encode(['email'=>'user@email.com','password'=>'senha123'])]);
 $token = json_decode(curl_exec($ch), true)['token'];`,
-      node: `const res = await fetch('https://app.flowinpay.com/api/login', {
+      node: `const res = await fetch('https://app.flowinpay.com.br/api/login', {
   method: 'POST', headers: { 'Content-Type': 'application/json' },
   body: JSON.stringify({ email: 'user@email.com', password: 'senha123' }),
 });
 const { token } = await res.json();`,
-      python: `r = requests.post('https://app.flowinpay.com/api/login',
+      python: `r = requests.post('https://app.flowinpay.com.br/api/login',
     json={'email': 'user@email.com', 'password': 'senha123'})
 token = r.json()['token']`,
       java: `var req = HttpRequest.newBuilder()
-    .uri(URI.create("https://app.flowinpay.com/api/login"))
+    .uri(URI.create("https://app.flowinpay.com.br/api/login"))
     .header("Content-Type", "application/json")
     .POST(BodyPublishers.ofString("{\\"email\\":\\"user@email.com\\",\\"password\\":\\"senha123\\"}"))
     .build();`,
-      go: `req, _ := http.NewRequest("POST", "https://app.flowinpay.com/api/login",
+      go: `req, _ := http.NewRequest("POST", "https://app.flowinpay.com.br/api/login",
     strings.NewReader(\`{"email":"user@email.com","password":"senha123"}\`))
 req.Header.Set("Content-Type", "application/json")`,
-      csharp: `var res = await client.PostAsJsonAsync("https://app.flowinpay.com/api/login",
+      csharp: `var res = await client.PostAsJsonAsync("https://app.flowinpay.com.br/api/login",
     new { email = "user@email.com", password = "senha123" });`,
-      ruby: `uri = URI('https://app.flowinpay.com/api/login')
+      ruby: `uri = URI('https://app.flowinpay.com.br/api/login')
 req = Net::HTTP::Post.new(uri, 'Content-Type' => 'application/json')
 req.body = { email: 'user@email.com', password: 'senha123' }.to_json`,
     }} />
@@ -231,39 +231,39 @@ function Charges({ lang, setLang }: { lang: string; setLang: (l: string) => void
     ]} />
     <LangSelector lang={lang} setLang={setLang} />
     <MultiCode lang={lang} examples={{
-      curl: `curl -X POST "https://app.flowinpay.com/api/v1/charges" \\
+      curl: `curl -X POST "https://app.flowinpay.com.br/api/v1/charges" \\
   -H "X-Api-Key: fp_SUA_CHAVE" \\
   -H "Content-Type: application/json" \\
   -d '{"value":50,"acquirer_id":1,"description":"Pedido #123","webhook_url":"https://seusite.com/webhook"}'`,
-      php: `$ch = curl_init('https://app.flowinpay.com/api/v1/charges');
+      php: `$ch = curl_init('https://app.flowinpay.com.br/api/v1/charges');
 curl_setopt_array($ch, [CURLOPT_POST=>true, CURLOPT_RETURNTRANSFER=>true,
     CURLOPT_HTTPHEADER=>['X-Api-Key: fp_SUA_CHAVE','Content-Type: application/json'],
     CURLOPT_POSTFIELDS=>json_encode(['value'=>50,'acquirer_id'=>1,'description'=>'Pedido #123',
         'webhook_url'=>'https://seusite.com/webhook'])]);
 $result = json_decode(curl_exec($ch), true);`,
-      node: `const res = await fetch('https://app.flowinpay.com/api/v1/charges', {
+      node: `const res = await fetch('https://app.flowinpay.com.br/api/v1/charges', {
   method: 'POST',
   headers: { 'X-Api-Key': 'fp_SUA_CHAVE', 'Content-Type': 'application/json' },
   body: JSON.stringify({ value: 50, acquirer_id: 1, description: 'Pedido #123',
     webhook_url: 'https://seusite.com/webhook' }),
 });
 const { charge } = await res.json();`,
-      python: `r = requests.post('https://app.flowinpay.com/api/v1/charges',
+      python: `r = requests.post('https://app.flowinpay.com.br/api/v1/charges',
     headers={'X-Api-Key': 'fp_SUA_CHAVE'},
     json={'value': 50, 'acquirer_id': 1, 'description': 'Pedido #123',
           'webhook_url': 'https://seusite.com/webhook'})
 charge = r.json()['charge']`,
       java: `var req = HttpRequest.newBuilder()
-    .uri(URI.create("https://app.flowinpay.com/api/v1/charges"))
+    .uri(URI.create("https://app.flowinpay.com.br/api/v1/charges"))
     .header("X-Api-Key", "fp_SUA_CHAVE").header("Content-Type", "application/json")
     .POST(BodyPublishers.ofString("{\\"value\\":50,\\"acquirer_id\\":1,\\"description\\":\\"Pedido #123\\"}"))
     .build();`,
-      go: `req, _ := http.NewRequest("POST", "https://app.flowinpay.com/api/v1/charges",
+      go: `req, _ := http.NewRequest("POST", "https://app.flowinpay.com.br/api/v1/charges",
     strings.NewReader(\`{"value":50,"acquirer_id":1,"description":"Pedido #123"}\`))
 req.Header.Set("X-Api-Key", "fp_SUA_CHAVE")`,
-      csharp: `var res = await client.PostAsJsonAsync("https://app.flowinpay.com/api/v1/charges",
+      csharp: `var res = await client.PostAsJsonAsync("https://app.flowinpay.com.br/api/v1/charges",
     new { value = 50, acquirer_id = 1, description = "Pedido #123" });`,
-      ruby: `uri = URI('https://app.flowinpay.com/api/v1/charges')
+      ruby: `uri = URI('https://app.flowinpay.com.br/api/v1/charges')
 req = Net::HTTP::Post.new(uri, 'X-Api-Key' => 'fp_SUA_CHAVE', 'Content-Type' => 'application/json')
 req.body = { value: 50, acquirer_id: 1, description: 'Pedido #123' }.to_json`,
     }} />
@@ -277,7 +277,7 @@ req.body = { value: 50, acquirer_id: 1, description: 'Pedido #123' }.to_json`,
     "fee_value": "2.00",
     "status": "active",
     "br_code": "00020101021226580014br.gov.bcb.pix...",
-    "payment_link_url": "https://app.flowinpay.com/pay/a1b2c3d4...",
+    "payment_link_url": "https://app.flowinpay.com.br/pay/a1b2c3d4...",
     "expires_at": "2026-06-06T13:00:00Z"
   }
 }`}</CodeBlock>
@@ -300,22 +300,22 @@ function Balance({ lang, setLang }: { lang: string; setLang: (l: string) => void
     <Endpoint method="GET" path="/api/v1/summary" description="Resumo financeiro" />
     <LangSelector lang={lang} setLang={setLang} />
     <MultiCode lang={lang} examples={{
-      curl: `curl "https://app.flowinpay.com/api/v1/balance" -H "X-Api-Key: fp_SUA_CHAVE"`,
-      php: `$ch = curl_init('https://app.flowinpay.com/api/v1/balance');
+      curl: `curl "https://app.flowinpay.com.br/api/v1/balance" -H "X-Api-Key: fp_SUA_CHAVE"`,
+      php: `$ch = curl_init('https://app.flowinpay.com.br/api/v1/balance');
 curl_setopt_array($ch, [CURLOPT_RETURNTRANSFER=>true, CURLOPT_HTTPHEADER=>['X-Api-Key: fp_SUA_CHAVE']]);
 echo curl_exec($ch);`,
-      node: `const res = await fetch('https://app.flowinpay.com/api/v1/balance',
+      node: `const res = await fetch('https://app.flowinpay.com.br/api/v1/balance',
   { headers: { 'X-Api-Key': 'fp_SUA_CHAVE' } });
 const { balance } = await res.json();`,
-      python: `r = requests.get('https://app.flowinpay.com/api/v1/balance',
+      python: `r = requests.get('https://app.flowinpay.com.br/api/v1/balance',
     headers={'X-Api-Key': 'fp_SUA_CHAVE'})`,
       java: `var req = HttpRequest.newBuilder()
-    .uri(URI.create("https://app.flowinpay.com/api/v1/balance"))
+    .uri(URI.create("https://app.flowinpay.com.br/api/v1/balance"))
     .header("X-Api-Key", "fp_SUA_CHAVE").build();`,
-      go: `req, _ := http.NewRequest("GET", "https://app.flowinpay.com/api/v1/balance", nil)
+      go: `req, _ := http.NewRequest("GET", "https://app.flowinpay.com.br/api/v1/balance", nil)
 req.Header.Set("X-Api-Key", "fp_SUA_CHAVE")`,
-      csharp: `var res = await client.GetAsync("https://app.flowinpay.com/api/v1/balance");`,
-      ruby: `uri = URI('https://app.flowinpay.com/api/v1/balance')
+      csharp: `var res = await client.GetAsync("https://app.flowinpay.com.br/api/v1/balance");`,
+      ruby: `uri = URI('https://app.flowinpay.com.br/api/v1/balance')
 req = Net::HTTP::Get.new(uri, 'X-Api-Key' => 'fp_SUA_CHAVE')`,
     }} />
     <CodeBlock lang="json">{`{ "balance": { "available": 1250.75, "blocked": 100.00, "total": 1350.75 } }`}</CodeBlock>
@@ -334,29 +334,29 @@ function Withdrawals({ lang, setLang }: { lang: string; setLang: (l: string) => 
     ]} />
     <LangSelector lang={lang} setLang={setLang} />
     <MultiCode lang={lang} examples={{
-      curl: `curl -X POST "https://app.flowinpay.com/api/v1/withdrawals" \\
+      curl: `curl -X POST "https://app.flowinpay.com.br/api/v1/withdrawals" \\
   -H "X-Api-Key: fp_SUA_CHAVE" -H "Content-Type: application/json" \\
   -d '{"value":100,"pix_key":"12345678901","pix_key_type":"cpf"}'`,
-      php: `$ch = curl_init('https://app.flowinpay.com/api/v1/withdrawals');
+      php: `$ch = curl_init('https://app.flowinpay.com.br/api/v1/withdrawals');
 curl_setopt_array($ch, [CURLOPT_POST=>true, CURLOPT_RETURNTRANSFER=>true,
     CURLOPT_HTTPHEADER=>['X-Api-Key: fp_SUA_CHAVE','Content-Type: application/json'],
     CURLOPT_POSTFIELDS=>json_encode(['value'=>100,'pix_key'=>'12345678901','pix_key_type'=>'cpf'])]);`,
-      node: `await fetch('https://app.flowinpay.com/api/v1/withdrawals', {
+      node: `await fetch('https://app.flowinpay.com.br/api/v1/withdrawals', {
   method: 'POST', headers: { 'X-Api-Key': 'fp_SUA_CHAVE', 'Content-Type': 'application/json' },
   body: JSON.stringify({ value: 100, pix_key: '12345678901', pix_key_type: 'cpf' }),
 });`,
-      python: `requests.post('https://app.flowinpay.com/api/v1/withdrawals',
+      python: `requests.post('https://app.flowinpay.com.br/api/v1/withdrawals',
     headers={'X-Api-Key': 'fp_SUA_CHAVE'},
     json={'value': 100, 'pix_key': '12345678901', 'pix_key_type': 'cpf'})`,
       java: `var req = HttpRequest.newBuilder()
-    .uri(URI.create("https://app.flowinpay.com/api/v1/withdrawals"))
+    .uri(URI.create("https://app.flowinpay.com.br/api/v1/withdrawals"))
     .header("X-Api-Key", "fp_SUA_CHAVE").header("Content-Type", "application/json")
     .POST(BodyPublishers.ofString("{\\"value\\":100,\\"pix_key\\":\\"12345678901\\",\\"pix_key_type\\":\\"cpf\\"}"))
     .build();`,
-      go: `req, _ := http.NewRequest("POST", "https://app.flowinpay.com/api/v1/withdrawals",
+      go: `req, _ := http.NewRequest("POST", "https://app.flowinpay.com.br/api/v1/withdrawals",
     strings.NewReader(\`{"value":100,"pix_key":"12345678901","pix_key_type":"cpf"}\`))
 req.Header.Set("X-Api-Key", "fp_SUA_CHAVE")`,
-      csharp: `await client.PostAsJsonAsync("https://app.flowinpay.com/api/v1/withdrawals",
+      csharp: `await client.PostAsJsonAsync("https://app.flowinpay.com.br/api/v1/withdrawals",
     new { value = 100, pix_key = "12345678901", pix_key_type = "cpf" });`,
       ruby: `req = Net::HTTP::Post.new(uri, 'X-Api-Key' => 'fp_SUA_CHAVE', 'Content-Type' => 'application/json')
 req.body = { value: 100, pix_key: '12345678901', pix_key_type: 'cpf' }.to_json`,

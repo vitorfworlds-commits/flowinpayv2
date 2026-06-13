@@ -102,23 +102,49 @@ class OpenPixService implements AcquirerInterface
         $response = Http::withHeaders($this->headers())
             ->timeout(30)
 
-            ->post("{$this->baseUrl}/api/v1/withdrawal", [
-                'value' => (int) ($value * 100),
-                'pixKey' => $pixKey,
-                'pixKeyType' => strtoupper($pixKeyType),
+            ->post("{$this->baseUrl}/api/v1/payment", [
                 'correlationID' => $correlationId,
+                'destinationAlias' => $pixKey,
+                'destinationAliasType' => strtoupper($pixKeyType),
+                'type' => 'PIX_KEY',
+                'value' => (int) ($value * 100),
+                'comment' => 'Saque FlowinPay',
             ]);
 
         if ($response->failed()) {
-            Log::error('Woovi withdrawal failed', [
+            Log::error('Woovi create payment failed', [
                 'status' => $response->status(),
                 'response' => $response->body(),
             ]);
 
-            throw new \Exception('Erro ao criar saque: ' . $response->body());
+            throw new \Exception('Erro ao solicitar pagamento na Woovi: ' . $response->body());
         }
 
-        return $response->json();
+        // Aprovar o pagamento
+        $approve = Http::withHeaders($this->headers())
+            ->timeout(30)
+            ->post("{$this->baseUrl}/api/v1/payment/approve", [
+                'correlationID' => $correlationId,
+            ]);
+
+        if ($approve->failed()) {
+            Log::error('Woovi approve payment failed', [
+                'status' => $approve->status(),
+                'response' => $approve->body(),
+            ]);
+
+            throw new \Exception('Erro ao aprovar pagamento na Woovi: ' . $approve->body());
+        }
+
+        return [
+            'success' => true,
+            'status' => 'APPROVED',
+            'transaction' => [
+                'correlationID' => $correlationId,
+                'status' => 'COMPLETED',
+                'value' => (int) ($value * 100),
+            ],
+        ];
     }
 
     public function verifyWebhookSignature(string $payload, string $signature): bool

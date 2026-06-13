@@ -39,7 +39,6 @@ interface ApiKey {
 
 interface CreatedKey {
     key: string;
-    secret: string;
     id: string;
 }
 
@@ -82,7 +81,7 @@ const ALL_PERMISSIONS = [
     { id: 'settings', label: 'Configurações', icon: KeyRound },
 ];
 
-function SecretKeyModal({ secret, onClose }: { secret: { chave: string; segreto: string }; onClose: () => void }) {
+function SecretKeyModal({ secret, onClose }: { secret: { key: string }; onClose: () => void }) {
     const handleCopy = (value: string, label: string) => {
         navigator.clipboard.writeText(value);
         toast.success(`${label} copiado!`);
@@ -93,7 +92,7 @@ function SecretKeyModal({ secret, onClose }: { secret: { chave: string; segreto:
             <div className="modal-panel" onClick={e => e.stopPropagation()}>
                 <div className="modal-header">
                     <div>
-                        <h2 className="modal-title">Segredos da API</h2>
+                        <h2 className="modal-title">Sua App ID</h2>
                         <p style={{ fontSize: 12, color: 'hsl(var(--muted-foreground))', marginTop: 2 }}>Copie e guarde em local seguro</p>
                     </div>
                     <button className="btn-icon" onClick={onClose}><X size={18} /></button>
@@ -104,27 +103,17 @@ function SecretKeyModal({ secret, onClose }: { secret: { chave: string; segreto:
                         <div style={{ fontSize: 13 }}>
                             <p style={{ fontWeight: 700, color: 'hsl(38 92% 50%)' }}>Aviso importante</p>
                             <p style={{ color: 'hsl(var(--muted-foreground))', marginTop: 4, lineHeight: 1.6 }}>
-                                Estes valores são sensíveis e não devem ser compartilhados com terceiros. Copie e guarde em local seguro.
+                                Esta é a credencial de autenticação da API (header X-Api-Key). Não compartilhe com terceiros.
                             </p>
                         </div>
                     </div>
 
                     {secret.key && (
                         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                            <span className="input-label">Chave Pública</span>
+                            <span className="input-label">App ID</span>
                             <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: 12, background: 'hsl(var(--background))', border: '1px solid hsl(var(--input))', borderRadius: 12 }}>
                                 <code style={{ fontFamily: 'monospace', fontSize: 13, color: 'hsl(var(--foreground))', wordBreak: 'break-all', flex: 1 }}>{secret.key}</code>
-                                <button className="btn-icon" style={{ flexShrink: 0 }} onClick={() => handleCopy(secret.key, 'Chave')}><Copy size={16} /></button>
-                            </div>
-                        </div>
-                    )}
-
-                    {secret.secret && (
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                            <span className="input-label">Chave Secreta</span>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: 12, background: 'hsl(var(--background))', border: '1px solid hsl(var(--input))', borderRadius: 12 }}>
-                                <code style={{ fontFamily: 'monospace', fontSize: 13, color: 'hsl(var(--foreground))', wordBreak: 'break-all', flex: 1 }}>{secret.secret}</code>
-                                <button className="btn-icon" style={{ flexShrink: 0 }} onClick={() => handleCopy(secret.secret, 'Segredo')}><Copy size={16} /></button>
+                                <button className="btn-icon" style={{ flexShrink: 0 }} onClick={() => handleCopy(secret.key, 'App ID')}><Copy size={16} /></button>
                             </div>
                         </div>
                     )}
@@ -167,7 +156,7 @@ function CreateKeyModal({ onClose, onCreated }: { onClose: () => void; onCreated
                     <div className="modal-header">
                         <div>
                             <h2 className="modal-title">Chave criada com sucesso!</h2>
-                            <p style={{ fontSize: 12, color: 'hsl(var(--muted-foreground))', marginTop: 2 }}>O segredo será exibido apenas esta vez</p>
+                            <p style={{ fontSize: 12, color: 'hsl(var(--muted-foreground))', marginTop: 2 }}>A App ID será exibida apenas esta vez</p>
                         </div>
                         <button className="btn-icon" onClick={onClose}><X size={18} /></button>
                     </div>
@@ -176,22 +165,17 @@ function CreateKeyModal({ onClose, onCreated }: { onClose: () => void; onCreated
                             <AlertTriangle size={18} style={{ color: 'hsl(38 92% 50%)', flexShrink: 0, marginTop: 2 }} />
                             <div style={{ fontSize: 13 }}>
                                 <p style={{ fontWeight: 700, color: 'hsl(38 92% 50%)' }}>Guarde em local seguro</p>
-                                <p style={{ color: 'hsl(var(--muted-foreground))', marginTop: 4 }}>O segredo não será exibido novamente após fechar este modal.</p>
+                                <p style={{ color: 'hsl(var(--muted-foreground))', marginTop: 4 }}>A App ID não será exibida novamente após fechar este modal.</p>
                             </div>
                         </div>
 
-                        {[
-                            { label: 'Chave Pública', value: createdKey.key },
-                            { label: 'Chave Secreta', value: createdKey.secret },
-                        ].map(item => (
-                            <div key={item.label} style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                                <span className="input-label">{item.label}</span>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: 12, background: 'hsl(var(--background))', border: '1px solid hsl(var(--input))', borderRadius: 12 }}>
-                                    <code style={{ fontFamily: 'monospace', fontSize: 13, color: 'hsl(var(--foreground))', wordBreak: 'break-all', flex: 1 }}>{item.value}</code>
-                                    <button className="btn btn-secondary btn-sm" onClick={() => { navigator.clipboard.writeText(item.value); toast.success(`${item.label} copiado!`); }}><Copy size={14} /></button>
-                                </div>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                            <span className="input-label">App ID</span>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: 12, background: 'hsl(var(--background))', border: '1px solid hsl(var(--input))', borderRadius: 12 }}>
+                                <code style={{ fontFamily: 'monospace', fontSize: 13, color: 'hsl(var(--foreground))', wordBreak: 'break-all', flex: 1 }}>{createdKey.key}</code>
+                                <button className="btn btn-secondary btn-sm" onClick={() => { navigator.clipboard.writeText(createdKey.key); toast.success('App ID copiada!'); }}><Copy size={14} /></button>
                             </div>
-                        ))}
+                        </div>
 
                         <button className="btn btn-primary w-full" onClick={() => { onCreated(); onClose(); }}>Entendido, fechar</button>
                     </div>
@@ -263,7 +247,7 @@ export default function ApiKeys() {
     const [keys, setKeys] = useState<ApiKey[]>([]);
     const [loading, setLoading] = useState(true);
     const [creating, setCreating] = useState(false);
-    const [secretKey, setSecretKey] = useState<{ key: string; secret: string } | null>(null);
+    const [secretKey, setSecretKey] = useState<{ key: string } | null>(null);
     const [togglingId, setTogglingId] = useState<string | null>(null);
     const [deletingId, setDeletingId] = useState<string | null>(null);
     const [regeneratingId, setRegeneratingId] = useState<string | null>(null);
@@ -604,7 +588,7 @@ export default function ApiKeys() {
                                     display: 'flex', alignItems: 'center', gap: 8, padding: '12px 14px',
                                     background: 'hsl(var(--background))', border: '1px solid hsl(var(--input))', borderRadius: 12,
                                 }}>
-                                    <span style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'hsl(var(--muted-foreground))', flexShrink: 0 }}>Chave</span>
+                                    <span style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'hsl(var(--muted-foreground))', flexShrink: 0 }}>App ID</span>
                                     <code style={{ fontFamily: 'monospace', fontSize: 12, color: 'hsl(var(--foreground))', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1 }}>
                                         {getKeyPreview(key.id, key.key)}
                                     </code>

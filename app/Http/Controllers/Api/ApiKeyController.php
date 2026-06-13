@@ -77,13 +77,12 @@ class ApiKeyController extends Controller
                 'id' => $apiKey->id,
                 'name' => $apiKey->name,
                 'key' => $keyData['plain'],
-                'secret' => $plainSecret,
                 'status' => $apiKey->status ?? 'active',
                 'permissions' => $apiKey->permissions,
                 'allowed_ips' => $apiKey->allowed_ips,
                 'created_at' => $apiKey->created_at,
             ],
-            'message' => 'Guarde a key e o secret. Não serão exibidos novamente.',
+            'message' => 'Guarde a App ID. Não será exibida novamente.',
         ], 201);
     }
 
@@ -191,10 +190,9 @@ class ApiKeyController extends Controller
                 'id' => $apiKey->id,
                 'name' => $apiKey->name,
                 'key' => $newKeyData['plain'],
-                'secret' => $apiKey->plain_secret,
                 'status' => $apiKey->status,
             ],
-            'message' => 'Nova key e secret gerados. Guarde-os.',
+            'message' => 'Nova App ID gerada. Guarde-a.',
         ]);
     }
 }

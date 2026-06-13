@@ -134,13 +134,19 @@ class WebhookCallbackService
             ];
         }
 
-        // 3. Send to all
+        // 3. Enfileira UMA entrega por destino — fora do request/transação.
+        //    O worker envia (com retry/backoff), sem segurar locks de banco.
         foreach ($urls as $target) {
-            $this->sendCallback($target['url'], $target['secret'], $payload, $charge->id);
+            \App\Jobs\SendWebhookCallback::dispatch($target['url'], $target['secret'], $payload, $charge->id);
         }
     }
 
-    private function sendCallback(string $url, ?string $secret, array $payload, int $chargeId): void
+    /**
+     * Entrega de um webhook (chamado pelo job SendWebhookCallback).
+     * Lança exceção em falha transitória pra a fila re-tentar; bloqueio de
+     * SSRF é permanente (retorna sem re-tentar).
+     */
+    public function sendCallback(string $url, ?string $secret, array $payload, int $chargeId): void
     {
         // SSRF protection: block private/reserved IPs at delivery time
         $host = parse_url($url, PHP_URL_HOST);
@@ -148,42 +154,38 @@ class WebhookCallbackService
             $ip = gethostbyname($host);
             if ($ip !== $host && !filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE)) {
                 Log::warning('Webhook callback blocked: private IP', ['url' => $url, 'resolved_ip' => $ip]);
-                return;
+                return; // bloqueio permanente — não re-tenta
             }
         }
 
-        try {
-            $body = json_encode($payload);
+        $body = json_encode($payload);
 
-            $headers = [
-                'Content-Type' => 'application/json',
-                'X-FlowinPay-Event' => $payload['event'],
-            ];
+        $headers = [
+            'Content-Type' => 'application/json',
+            'X-FlowinPay-Event' => $payload['event'],
+        ];
 
-            if ($secret) {
-                $headers['X-FlowinPay-Signature'] = hash_hmac('sha256', $body, $secret);
-            }
+        if ($secret) {
+            $headers['X-FlowinPay-Signature'] = hash_hmac('sha256', $body, $secret);
+        }
 
-            // allow_redirects=false: impede que um endpoint público redirecione (302)
-            // para rede interna / metadata (169.254.169.254), driblando a checagem de IP.
-            $response = Http::withHeaders($headers)
-                ->withOptions(['allow_redirects' => false])
-                ->timeout(10)
-                ->post($url, $payload);
+        // allow_redirects=false: impede que um endpoint público redirecione (302)
+        // para rede interna / metadata (169.254.169.254), driblando a checagem de IP.
+        $response = Http::withHeaders($headers)
+            ->withOptions(['allow_redirects' => false])
+            ->timeout(10)
+            ->post($url, $payload);
 
-            Log::info('Webhook callback sent', [
-                'charge_id' => $chargeId,
-                'url' => $url,
-                'event' => $payload['event'],
-                'status' => $response->status(),
-            ]);
+        Log::info('Webhook callback sent', [
+            'charge_id' => $chargeId,
+            'url' => $url,
+            'event' => $payload['event'],
+            'status' => $response->status(),
+        ]);
 
-        } catch (\Exception $e) {
-            Log::error('Webhook callback failed', [
-                'charge_id' => $chargeId,
-                'url' => $url,
-                'error' => $e->getMessage(),
-            ]);
+        // Não-2xx → lança pra fila re-tentar com backoff.
+        if (!$response->successful()) {
+            throw new \RuntimeException("Webhook callback para {$url} retornou HTTP {$response->status()}");
         }
     }
 }

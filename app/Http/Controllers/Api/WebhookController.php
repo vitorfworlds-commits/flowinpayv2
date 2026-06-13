@@ -208,7 +208,7 @@ class WebhookController extends Controller
     {
         if (!$correlationId) return;
 
-        DB::transaction(function () use ($acquirer, $data, $correlationId) {
+        $charge = DB::transaction(function () use ($acquirer, $data, $correlationId) {
             // Lock na CHARGE primeiro para evitar double-credit
             $charge = Charge::where('correlation_id', $correlationId)
                 ->where('acquirer_id', $acquirer->id)
@@ -217,7 +217,7 @@ class WebhookController extends Controller
 
             // Only accept active or pending charges
             if (!$charge || !in_array($charge->status, ['active', 'pending'])) {
-                return;
+                return null;
             }
 
             // Lock no USER
@@ -254,9 +254,14 @@ class WebhookController extends Controller
                 'fee' => $charge->fee_value,
             ]);
 
-            // Disparar callback pro integrador
-            app(WebhookCallbackService::class)->sendChargeCompleted($charge);
+            return $charge;
         });
+
+        // Fora da transação (locks já liberados): enfileira o callback pro integrador.
+        // Evita segurar locks de banco enquanto espera o servidor do lojista.
+        if ($charge) {
+            app(WebhookCallbackService::class)->sendChargeCompleted($charge);
+        }
     }
 
     private function handleChargeExpired(Acquirer $acquirer, array $data, ?string $correlationId): void

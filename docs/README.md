@@ -30,10 +30,10 @@
 ### Autenticação
 | Método | Endpoint | Descrição |
 |---|---|---|
-| POST | `/api/v1/auth/register` | Registrar novo usuário |
-| POST | `/api/v1/auth/login` | Login (retorna Bearer Token) |
-| GET | `/api/v1/auth/me` | Dados do usuário autenticado |
-| POST | `/api/v1/auth/logout` | Revogar token atual |
+| POST | `/api/register` | Registrar novo usuário |
+| POST | `/api/login` | Login do painel (retorna Bearer Token) |
+| GET | `/api/me` | Dados do usuário autenticado |
+| POST | `/api/logout` | Revogar token atual |
 
 ### Cobranças (PIX)
 | Método | Endpoint | Descrição |

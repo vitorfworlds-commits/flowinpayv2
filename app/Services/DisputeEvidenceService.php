@@ -87,8 +87,9 @@ class DisputeEvidenceService
         $pixKeyType = 'RANDOM';
 
         // Access link
-        $accessHash = $charge ? hash_hmac('sha256', $charge->id . '|' . $charge->correlation_id, config('app.key')) : 'N/A';
-        $accessLink = e(config('app.url') . '/access/' . $accessHash);
+        // Página pública da transação que já existe (/pay/{correlationId}).
+        // O correlationId é um UUID não-enumerável — dispensa token extra.
+        $accessLink = $charge ? e(config('app.url') . '/pay/' . $charge->correlation_id) : 'N/A';
 
         $chargeValue = $charge ? number_format($charge->value, 2, ',', '.') : number_format($dispute->amount, 2, ',', '.');
         $chargeDate = $charge ? $charge->created_at->format('d/m/Y H:i') : $dispute->created_at->format('d/m/Y H:i');
@@ -101,14 +102,13 @@ class DisputeEvidenceService
         $disputeReason = e($disputeData['dispute']['disputeReason'] ?? 'N/A');
 
         // Logs
+        // Apenas eventos reais e datados (sem registros sintéticos).
         $logs = [];
         if ($charge) {
-            $logs[] = ['date' => $charge->created_at->format('d/m/Y H:i:s'), 'event' => 'api_metadata_received', 'detail' => 'pix'];
+            $logs[] = ['date' => $charge->created_at->format('d/m/Y H:i:s'), 'event' => 'cobranca_criada', 'detail' => $charge->correlation_id ?? 'N/A'];
             if ($charge->paid_at) {
-                $logs[] = ['date' => $charge->paid_at->format('d/m/Y H:i:s'), 'event' => 'payment_paid', 'detail' => $charge->correlation_id ?? 'N/A'];
-                $logs[] = ['date' => $charge->paid_at->addSeconds(60)->format('d/m/Y H:i:s'), 'event' => 'delivery_released', 'detail' => $accessLink];
+                $logs[] = ['date' => $charge->paid_at->format('d/m/Y H:i:s'), 'event' => 'pagamento_confirmado', 'detail' => $charge->correlation_id ?? 'N/A'];
             }
-            $logs[] = ['date' => now()->format('d/m/Y H:i:s'), 'event' => 'after_paid_processed_v1', 'detail' => 'ok'];
         }
 
         $html = <<<HTML
@@ -243,23 +243,6 @@ HTML;
         <div class="row"><span class="row-label">NOME</span><span class="row-value">{$merchantName}</span></div>
         <div class="row"><span class="row-label">EMAIL</span><span class="row-value">{$merchantEmail}</span></div>
         <div class="row"><span class="row-label">CPF/CNPJ</span><span class="row-value">{$merchantDocument}</span></div>
-    </div>
-</div>
-
-<!-- FINGERPRINTING -->
-<div class="section">
-    <div class="section-title">Rastro Digital do Dispositivo</div>
-    <div class="fingerprint">
-        <p style="font-size: 11px; color: #92400e; margin-bottom: 12px;">
-            Os dados abaixo foram coletados via fingerprinting de hardware e comprovam a autoria da transação/acesso através da identificação única do dispositivo.
-        </p>
-        <div class="row"><span class="row-label">ENDEREÇO IP</span><span class="row-value">N/A</span></div>
-        <div class="row"><span class="row-label">DEVICE HASH</span><span class="row-value">N/A</span></div>
-        <div class="row"><span class="row-label">RESOLUÇÃO</span><span class="row-value">N/A</span></div>
-        <div class="row"><span class="row-label">PLATAFORMA</span><span class="row-value">N/A</span></div>
-        <div class="row"><span class="row-label">USER AGENT</span><span class="row-value">N/A</span></div>
-        <div class="row"><span class="row-label">IDIOMA</span><span class="row-value">pt-br</span></div>
-        <div class="row"><span class="row-label">TIMEZONE</span><span class="row-value">America/Sao_Paulo</span></div>
     </div>
 </div>
 

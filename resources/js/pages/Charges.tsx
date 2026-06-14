@@ -4,7 +4,7 @@ import { AnimatePresence } from 'framer-motion';
 import {
   Search, Plus, Eye, Copy, X, ChevronLeft, ChevronRight,
   Receipt, FileText, Download, CreditCard, CheckCircle,
-  AlertTriangle, Clock, TrendingUp, Ban, ExternalLink,
+  AlertTriangle, Clock, TrendingUp, Ban, ExternalLink, Activity,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import api from '@/lib/api';

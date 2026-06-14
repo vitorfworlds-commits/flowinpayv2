@@ -14,6 +14,7 @@ import Disputes from './pages/Disputes';
 import Acquirers from './pages/Acquirers';
 import Fees from './pages/Fees';
 import Account from './pages/Account';
+import Kyc from './pages/Kyc';
 import ChargeDetail from './pages/ChargeDetail';
 import Pay from './pages/Pay';
 import Docs from './pages/Docs';
@@ -39,7 +40,7 @@ root.render(
                 },
             }} />
             <Routes>
-                <Route path="/" element={<Landing />} />
+                <Route path="/" element={<Navigate to="/login" replace />} />
                 <Route path="/pay/:correlationId" element={<Pay />} />
                 <Route path="/docs" element={<Docs />} />
                 <Route path="/login" element={<Login />} />
@@ -57,6 +58,7 @@ root.render(
                     <Route path="/api-keys" element={<ApiKeys />} />
                     <Route path="/fees" element={<Fees />} />
                     <Route path="/account" element={<Account />} />
+                    <Route path="/kyc" element={<Kyc />} />
                     <Route path="/kyc" element={<Kyc />} />
                 </Route>
                 <Route path="*" element={<Navigate to="/dashboard" replace />} />

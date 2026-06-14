@@ -208,6 +208,12 @@ class WebhookController extends Controller
     {
         if (!$correlationId) return;
 
+        // Saques usam correlationId prefixado com "withdrawal_"
+        if (str_starts_with($correlationId, 'withdrawal_')) {
+            $this->handleWithdrawalCompleted($acquirer, $data, $correlationId);
+            return;
+        }
+
         $charge = DB::transaction(function () use ($acquirer, $data, $correlationId) {
             // Lock na CHARGE primeiro para evitar double-credit
             $charge = Charge::where('correlation_id', $correlationId)
@@ -262,6 +268,48 @@ class WebhookController extends Controller
         if ($charge) {
             app(WebhookCallbackService::class)->sendChargeCompleted($charge);
         }
+    }
+
+    private function handleWithdrawalCompleted(Acquirer $acquirer, array $data, ?string $correlationId): void
+    {
+        $withdrawal = Withdrawal::where('transaction_id', $correlationId)
+            ->where('status', 'processing')
+            ->first();
+
+        if (!$withdrawal) {
+            Log::info('Withdrawal not found or already processed', [
+                'correlation_id' => $correlationId,
+            ]);
+            return;
+        }
+
+        DB::transaction(function () use ($withdrawal, $data) {
+            $withdrawal->update([
+                'status' => 'completed',
+                'processed_at' => now(),
+                'acquirer_response' => json_encode($data),
+            ]);
+
+            // Liberar saldo bloqueado
+            $user = \App\Models\User::lockForUpdate()->findOrFail($withdrawal->user_id);
+            $user->decrement('balance_blocked', $withdrawal->value);
+
+            Transaction::create([
+                'user_id' => $user->id,
+                'type' => 'withdrawal_completed',
+                'amount' => -$withdrawal->net_value,
+                'balance_before' => $user->balance,
+                'balance_after' => $user->balance,
+                'reference_type' => Withdrawal::class,
+                'reference_id' => $withdrawal->id,
+                'description' => 'Saque confirmado via webhook',
+            ]);
+        });
+
+        Log::info('Withdrawal completed via webhook', [
+            'withdrawal_id' => $withdrawal->id,
+            'correlation_id' => $correlationId,
+        ]);
     }
 
     private function handleChargeExpired(Acquirer $acquirer, array $data, ?string $correlationId): void

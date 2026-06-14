@@ -55,14 +55,18 @@ Route::middleware(['auth:sanctum', 'throttle:120,1'])->group(function () {
     Route::get('/charges', [ChargeController::class, 'index']);
     Route::get('/charges/stats', [ChargeController::class, 'stats']);
     Route::get('/charges/{id}', [ChargeController::class, 'show']);
-    Route::post('/charges', [ChargeController::class, 'store'])->middleware('throttle:30,1');
-    Route::post('/charges/{id}/cancel', [ChargeController::class, 'cancel'])->middleware('throttle:10,1');
 
-    // Withdrawals (saques) — rate mais restritivo
+    // Withdrawals (saques) — list/view sempre acessível
     Route::get('/withdrawals', [WithdrawalController::class, 'index']);
     Route::get('/withdrawals/{id}', [WithdrawalController::class, 'show']);
-    Route::post('/withdrawals', [WithdrawalController::class, 'store'])->middleware('throttle:60,1');
-    Route::post('/withdrawals/{id}/cancel', [WithdrawalController::class, 'cancel'])->middleware('throttle:60,1');
+
+    // Rotas que PRECISAM de KYC aprovado
+    Route::middleware('kyc')->group(function () {
+        Route::post('/charges', [ChargeController::class, 'store'])->middleware('throttle:30,1');
+        Route::post('/charges/{id}/cancel', [ChargeController::class, 'cancel'])->middleware('throttle:10,1');
+        Route::post('/withdrawals', [WithdrawalController::class, 'store'])->middleware('throttle:60,1');
+        Route::post('/withdrawals/{id}/cancel', [WithdrawalController::class, 'cancel'])->middleware('throttle:60,1');
+    });
 
     // Fee current (qualquer usuário autenticado pode ver a taxa vigente)
     Route::get('/fees/current', [FeeConfigController::class, 'current']);

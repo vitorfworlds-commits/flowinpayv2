@@ -36,6 +36,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'admin' => \App\Http\Middleware\AdminMiddleware::class,
             'apikey' => \App\Http\Middleware\VerifyApiKey::class,
+            'kyc' => \App\Http\Middleware\KycRequired::class,
         ]);
 
         $middleware->api(prepend: [

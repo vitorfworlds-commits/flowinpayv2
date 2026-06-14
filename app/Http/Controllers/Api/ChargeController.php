@@ -21,13 +21,36 @@ class ChargeController extends Controller
 {
     public function index(Request $request): JsonResponse
     {
-        $charges = $request->user()
+        $query = $request->user()
             ->charges()
             ->with('acquirer')
-            ->orderBy('created_at', 'desc')
-            ->paginate(15);
+            ->orderBy('created_at', 'desc');
 
-        return response()->json($charges);
+        // Filtro por status
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        // Busca por texto
+        if ($request->filled('search')) {
+            $search = '%' . $request->search . '%';
+            $query->where(function ($q) use ($search) {
+                $q->where('description', 'like', $search)
+                  ->orWhere('customer_name', 'like', $search)
+                  ->orWhere('correlation_id', 'like', $search)
+                  ->orWhere('id', 'like', $search);
+            });
+        }
+
+        // Filtro por data
+        if ($request->filled('start_date')) {
+            $query->whereDate('created_at', '>=', $request->start_date);
+        }
+        if ($request->filled('end_date')) {
+            $query->whereDate('created_at', '<=', $request->end_date);
+        }
+
+        return response()->json($query->paginate(15));
     }
 
     public function store(StoreChargeRequest $request): JsonResponse

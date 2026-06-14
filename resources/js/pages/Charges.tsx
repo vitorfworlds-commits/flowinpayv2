@@ -72,6 +72,8 @@ export default function Charges() {
   const [total, setTotal] = useState(0);
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
 
   const [showCreate, setShowCreate] = useState(false);
   const [createAmount, setCreateAmount] = useState('');
@@ -85,7 +87,7 @@ export default function Charges() {
   const [cancelling, setCancelling] = useState(false);
 
   // KPI stats from ALL charges (not just current page)
-  const [stats, setStats] = useState({ total: 0, paid: 0, pending: 0, totalAmount: 0 });
+  const [stats, setStats] = useState({ total: 0, paid: 0, pending: 0, totalAmount: 0, conversionRate: 0 });
 
   const fetchCharges = useCallback(async (p: number) => {
     setLoading(true);
@@ -93,6 +95,8 @@ export default function Charges() {
       const params: Record<string, string | number> = { page: p, per_page: 15 };
       if (search) params.search = search;
       if (statusFilter) params.status = statusFilter;
+      if (startDate) params.start_date = startDate;
+      if (endDate) params.end_date = endDate;
       const { data } = await api.get('/charges', { params });
       const res: PaginatedResponse = data;
       setCharges(res.data);
@@ -101,18 +105,22 @@ export default function Charges() {
       setTotal(res.total);
 
       // Calc stats from current page data
+      const paid = res.data.filter((c: Charge) => c.status === 'paid').length;
+      const pending = res.data.filter((c: Charge) => ['pending', 'active'].includes(c.status)).length;
+      const conversionDenom = paid + pending;
       setStats({
         total: res.total,
-        paid: res.data.filter((c: Charge) => c.status === 'paid').length,
-        pending: res.data.filter((c: Charge) => ['pending', 'active'].includes(c.status)).length,
+        paid,
+        pending,
         totalAmount: res.data.reduce((s: number, c: Charge) => s + Number(c.value || 0), 0),
+        conversionRate: conversionDenom > 0 ? Math.round((paid / conversionDenom) * 1000) / 10 : 0,
       });
     } catch {
       toast.error('Erro ao carregar cobranças');
     } finally {
       setLoading(false);
     }
-  }, [search, statusFilter]);
+  }, [search, statusFilter, startDate, endDate]);
 
   useEffect(() => { fetchCharges(1); }, [fetchCharges]);
 
@@ -174,7 +182,7 @@ export default function Charges() {
     return isNaN(n) ? 0 : n;
   };
 
-  const hasFilters = search || statusFilter;
+  const hasFilters = search || statusFilter || startDate || endDate;
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 28 }}>
@@ -199,12 +207,13 @@ export default function Charges() {
       </div>
 
       {/* KPI STATS */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-5 gap-4">
         {[
           { label: 'Total', value: String(stats.total), icon: Receipt, color: 'hsl(217 91% 60%)', bg: 'hsl(217 91% 60% / 0.1)' },
           { label: 'Pagas', value: String(stats.paid), icon: CheckCircle, color: 'hsl(142 76% 36%)', bg: 'hsl(142 76% 36% / 0.1)' },
           { label: 'Pendentes', value: String(stats.pending), icon: AlertTriangle, color: 'hsl(38 92% 50%)', bg: 'hsl(38 92% 50% / 0.1)' },
           { label: 'Volume', value: formatBRL(stats.totalAmount), icon: TrendingUp, color: 'hsl(262 83% 58%)', bg: 'hsl(262 83% 58% / 0.1)' },
+          { label: 'Conversão', value: `${stats.conversionRate}%`, icon: Activity, color: 'hsl(142 76% 36%)', bg: 'hsl(142 76% 36% / 0.1)' },
         ].map((stat, i) => (
           <div key={i} className="card card-glow stat-card">
             <div className="stat-card-top">
@@ -243,8 +252,13 @@ export default function Charges() {
         >
           {STATUS_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
         </select>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+          <input type="date" className="input" style={{ width: 140, fontSize: 12 }} value={startDate} onChange={e => { setStartDate(e.target.value); setPage(1); }} placeholder="De" />
+          <span style={{ fontSize: 12, color: 'hsl(var(--muted-foreground))' }}>até</span>
+          <input type="date" className="input" style={{ width: 140, fontSize: 12 }} value={endDate} onChange={e => { setEndDate(e.target.value); setPage(1); }} placeholder="Até" />
+        </div>
         {hasFilters && (
-          <button className="btn btn-ghost btn-sm" onClick={() => { setSearch(''); setStatusFilter(''); }}>
+          <button className="btn btn-ghost btn-sm" onClick={() => { setSearch(''); setStatusFilter(''); setStartDate(''); setEndDate(''); }}>
             <X size={14} /> Limpar
           </button>
         )}

@@ -99,22 +99,17 @@ export default function Charges() {
       if (endDate) params.end_date = endDate;
       const { data } = await api.get('/charges', { params });
       const res: PaginatedResponse = data;
-      setCharges(res.data);
+      // Filter out _stats from data
+      const statsEntry = res.data.find((c: any) => c._stats);
+      const cleanData = res.data.filter((c: any) => !c._stats);
+      setCharges(cleanData);
       setPage(res.current_page);
       setLastPage(res.last_page);
       setTotal(res.total);
 
-      // Calc stats from current page data
-      const paid = res.data.filter((c: Charge) => c.status === 'paid').length;
-      const pending = res.data.filter((c: Charge) => ['pending', 'active'].includes(c.status)).length;
-      const conversionDenom = paid + pending;
-      setStats({
-        total: res.total,
-        paid,
-        pending,
-        totalAmount: res.data.reduce((s: number, c: Charge) => s + Number(c.value || 0), 0),
-        conversionRate: conversionDenom > 0 ? Math.round((paid / conversionDenom) * 1000) / 10 : 0,
-      });
+      if (statsEntry?._stats) {
+        setStats(statsEntry._stats);
+      }
     } catch {
       toast.error('Erro ao carregar cobranças');
     } finally {

@@ -50,7 +50,37 @@ class ChargeController extends Controller
             $query->whereDate('created_at', '<=', $request->end_date);
         }
 
-        return response()->json($query->paginate(15));
+        // Stats sobre TODOS os filtrados (uma query com conditional aggregation)
+        $statsRow = $request->user()
+            ->charges()
+            ->selectRaw('COUNT(*) as total')
+            ->selectRaw("SUM(CASE WHEN status = 'paid' THEN 1 ELSE 0 END) as paid")
+            ->selectRaw("SUM(CASE WHEN status IN ('pending','active') THEN 1 ELSE 0 END) as pending")
+            ->selectRaw('COALESCE(SUM(value), 0) as totalAmount')
+            ->when($request->filled('status'), fn($q) => $q->where('status', $request->status))
+            ->when($request->filled('search'), function ($q) use ($request) {
+                $s = '%' . $request->search . '%';
+                $q->where(fn($q2) => $q2->where('description', 'like', $s)->orWhere('customer_name', 'like', $s)->orWhere('correlation_id', 'like', $s)->orWhere('id', 'like', $s));
+            })
+            ->when($request->filled('start_date'), fn($q) => $q->whereDate('created_at', '>=', $request->start_date))
+            ->when($request->filled('end_date'), fn($q) => $q->whereDate('created_at', '<=', $request->end_date))
+            ->first();
+
+        $paid = (int) $statsRow->paid;
+        $pending = (int) $statsRow->pending;
+        $denom = $paid + $pending;
+        $stats = [
+            'total' => (int) $statsRow->total,
+            'paid' => $paid,
+            'pending' => $pending,
+            'totalAmount' => round((float) $statsRow->totalAmount, 2),
+            'conversionRate' => $denom > 0 ? round(($paid / $denom) * 100, 1) : 0,
+        ];
+
+        $paginated = $query->paginate(15);
+        $paginated->getCollection()->put('_stats', $stats);
+
+        return response()->json($paginated);
     }
 
     public function store(StoreChargeRequest $request): JsonResponse

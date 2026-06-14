@@ -128,6 +128,10 @@ class TransactionController extends Controller
         $pendingCharges = $user->charges()->where('status', 'active')->count();
         $totalWithdrawals = $user->withdrawals()->count();
 
+        // Taxa de conversão = paid / (paid + pending) * 100
+        $denominator = $paidCharges + $pendingCharges;
+        $conversionRate = $denominator > 0 ? round(($paidCharges / $denominator) * 100, 1) : 0;
+
         return response()->json([
             'summary' => [
                 'today' => [
@@ -149,6 +153,7 @@ class TransactionController extends Controller
                     'paid_charges' => $paidCharges,
                     'pending_charges' => $pendingCharges,
                     'total_withdrawals' => $totalWithdrawals,
+                    'conversion_rate' => $conversionRate,
                 ],
             ],
         ]);

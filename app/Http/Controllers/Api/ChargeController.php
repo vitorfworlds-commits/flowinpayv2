@@ -216,6 +216,11 @@ class ChargeController extends Controller
         $totalReceived = $user->charges()->where('status', 'paid')->sum('value');
         $totalFees = $user->charges()->where('status', 'paid')->sum('fee_value');
         $pendingCharges = $user->charges()->where('status', 'active')->count();
+        $paidCharges = $user->charges()->where('status', 'paid')->count();
+
+        // Conversion rate = paid / (paid + pending) * 100
+        $denominator = $paidCharges + $pendingCharges;
+        $conversionRate = $denominator > 0 ? round(($paidCharges / $denominator) * 100, 1) : 0;
 
         return response()->json([
             'stats' => [
@@ -224,6 +229,8 @@ class ChargeController extends Controller
                 'total_fees' => (float) $totalFees,
                 'net_received' => round((float) $totalReceived - (float) $totalFees, 2),
                 'pending_charges' => $pendingCharges,
+                'paid_charges' => $paidCharges,
+                'conversion_rate' => $conversionRate,
             ],
         ]);
     }

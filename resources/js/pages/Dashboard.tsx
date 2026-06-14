@@ -21,7 +21,7 @@ interface SummaryData {
     today: { received: number; fees: number; net: number; withdrawals: number };
     week: { received: number };
     month: { received: number; fees: number; net: number };
-    counts: { total_charges: number; paid_charges: number; pending_charges: number; total_withdrawals: number };
+    counts: { total_charges: number; paid_charges: number; pending_charges: number; total_withdrawals: number; conversion_rate: number };
 }
 
 interface BalanceData {
@@ -238,6 +238,7 @@ export default function Dashboard() {
     const totalCharges = summary?.counts?.total_charges || 0;
     const paidCharges = summary?.counts?.paid_charges || 0;
     const pendingCharges = summary?.counts?.pending_charges || 0;
+    const conversionRate = summary?.counts?.conversion_rate || 0;
     const availableBalance = balance?.available || 0;
     const blockedBalance = balance?.blocked || 0;
     const chartTotal = chartData.reduce((sum, d) => sum + d.value, 0);
@@ -424,12 +425,15 @@ export default function Dashboard() {
                         color: 'hsl(38 92% 50%)',
                         bg: 'hsl(38 92% 50% / 0.1)',
                         sub: (
-                            <div className="flex items-center gap-2">
+                            <div className="flex items-center gap-2 flex-wrap">
                                 <span className="text-emerald-500 flex items-center gap-1 text-xs font-semibold">
                                     <CheckCircle size={12} /> {paidCharges} pagas
                                 </span>
                                 <span className="text-amber-500 flex items-center gap-1 text-xs font-semibold">
                                     <AlertTriangle size={12} /> {pendingCharges} pendentes
+                                </span>
+                                <span className="text-blue-400 flex items-center gap-1 text-xs font-semibold">
+                                    <BarChart3 size={12} /> {conversionRate}% conversão
                                 </span>
                             </div>
                         )

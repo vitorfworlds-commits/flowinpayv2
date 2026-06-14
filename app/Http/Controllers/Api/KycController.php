@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Storage;
 
 class KycController extends Controller
 {
-    private const ALLOWED_TYPES = ['cpf', 'cnpj', 'selfie', 'comprovante_residencia'];
+    private const ALLOWED_TYPES = ['rg_frente', 'rg_verso', 'selfie'];
     private const ALLOWED_MIMES = ['image/jpeg', 'image/png', 'application/pdf'];
     private const MAX_SIZE = 5 * 1024 * 1024; // 5MB
 

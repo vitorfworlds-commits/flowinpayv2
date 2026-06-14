@@ -1,15 +1,14 @@
 import { useState, useRef } from 'react';
 import { motion } from 'framer-motion';
-import { Shield, Upload, Clock, CheckCircle, AlertTriangle, FileText, X } from 'lucide-react';
+import { Shield, Upload, Clock, AlertTriangle, CheckCircle } from 'lucide-react';
 import api from '@/lib/api';
 import toast from 'react-hot-toast';
 import { useAuthStore } from '@/store/useAuthStore';
 
-const DOC_TYPES = [
-    { value: 'cpf', label: 'RG ou CPF', desc: 'Documento de identidade com foto' },
-    { value: 'cnpj', label: 'CNPJ', desc: 'Cartão CNPJ ou certificado' },
-    { value: 'selfie', label: 'Selfie', desc: 'Selfie segurando o documento' },
-    { value: 'comprovante_residencia', label: 'Comprovante', desc: 'Comprovante de residência' },
+const REQUIRED_DOCS = [
+    { type: 'rg_frente', label: 'RG — Frente', desc: 'Foto da frente do documento de identidade', icon: '📄' },
+    { type: 'rg_verso', label: 'RG — Verso', desc: 'Foto do verso do documento de identidade', icon: '📄' },
+    { type: 'selfie', label: 'Selfie com RG', desc: 'Selfie segurando o RG próximo ao rosto', icon: '🤳' },
 ];
 
 interface Props {
@@ -19,30 +18,46 @@ interface Props {
 
 export default function KycGateScreen({ status, onStatusChange }: Props) {
     const { user, logout } = useAuthStore();
-    const [selectedType, setSelectedType] = useState('');
-    const [selectedFile, setSelectedFile] = useState<File | null>(null);
+    const [files, setFiles] = useState<Record<string, File | null>>({});
+    const [previews, setPreviews] = useState<Record<string, string>>({});
     const [uploading, setUploading] = useState(false);
-    const fileRef = useRef<HTMLInputElement>(null);
+    const fileRefs = useRef<Record<string, HTMLInputElement | null>>({});
 
-    const handleUpload = async () => {
-        if (!selectedType || !selectedFile) {
-            toast.error('Selecione o tipo e o arquivo');
+    const handleFileSelect = (type: string, file: File | null) => {
+        if (file && file.size > 5 * 1024 * 1024) {
+            toast.error(`${REQUIRED_DOCS.find(d => d.type === type)?.label}: máx 5MB`);
             return;
         }
-        if (selectedFile.size > 5 * 1024 * 1024) {
-            toast.error('Arquivo máximo: 5MB');
+        setFiles(prev => ({ ...prev, [type]: file }));
+        if (file) {
+            const url = URL.createObjectURL(file);
+            setPreviews(prev => ({ ...prev, [type]: url }));
+        } else {
+            setPreviews(prev => { const p = { ...prev }; delete p[type]; return p; });
+        }
+    };
+
+    const allUploaded = REQUIRED_DOCS.every(d => files[d.type]);
+
+    const handleUpload = async () => {
+        if (!allUploaded) {
+            toast.error('Envie todos os 3 documentos');
             return;
         }
         setUploading(true);
         try {
-            const form = new FormData();
-            form.append('document_type', selectedType);
-            form.append('file', selectedFile);
-            await api.post('/kyc', form, { headers: { 'Content-Type': 'multipart/form-data' } });
-            toast.success('Documento enviado! Aguarde a análise.');
+            for (const doc of REQUIRED_DOCS) {
+                const file = files[doc.type];
+                if (!file) continue;
+                const form = new FormData();
+                form.append('document_type', doc.type);
+                form.append('file', file);
+                await api.post('/kyc', form, { headers: { 'Content-Type': 'multipart/form-data' } });
+            }
+            toast.success('Documentos enviados! Aguarde a análise.');
             onStatusChange('pending');
         } catch (err: any) {
-            toast.error(err.response?.data?.message || 'Erro ao enviar');
+            toast.error(err.response?.data?.message || 'Erro ao enviar documentos');
         } finally {
             setUploading(false);
         }
@@ -56,7 +71,7 @@ export default function KycGateScreen({ status, onStatusChange }: Props) {
             <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                style={{ width: '100%', maxWidth: 520 }}
+                style={{ width: '100%', maxWidth: 560 }}
             >
                 {/* Header */}
                 <div style={{ textAlign: 'center', marginBottom: 32 }}>
@@ -71,13 +86,12 @@ export default function KycGateScreen({ status, onStatusChange }: Props) {
                     <h1 style={{ fontSize: 22, fontWeight: 800, marginBottom: 8 }}>
                         {status === 'pending' ? 'Documentos em análise' : status === 'rejected' ? 'Documentos rejeitados' : 'Verificação de identidade'}
                     </h1>
-                    <p style={{ color: 'hsl(var(--muted-foreground))', fontSize: 14, lineHeight: 1.6, maxWidth: 400, margin: '0 auto' }}>
+                    <p style={{ color: 'hsl(var(--muted-foreground))', fontSize: 14, lineHeight: 1.6, maxWidth: 440, margin: '0 auto' }}>
                         {status === 'pending'
-                            ? 'Seus documentos estão sendo analisados. Você receberá uma notificação assim que for aprovado.'
+                            ? 'Seus documentos estão sendo analisados. Você será notificado quando aprovado.'
                             : status === 'rejected'
-                            ? 'Seus documentos foram rejeitados. Por favor, envie novamente com documentos válidos.'
-                            : 'Para acessar a plataforma, é necessário verificar sua identidade. Envie seus documentos abaixo.'
-                        }
+                            ? 'Seus documentos foram rejeitados. Envie novamente.'
+                            : 'Para acessar a plataforma, envie os 3 documentos abaixo.'}
                     </p>
                 </div>
 
@@ -96,63 +110,73 @@ export default function KycGateScreen({ status, onStatusChange }: Props) {
                                 padding: '10px 20px', borderRadius: 8, background: 'none',
                                 border: '1px solid hsl(var(--border))', color: 'hsl(var(--muted-foreground))',
                                 fontSize: 13, cursor: 'pointer',
-                            }}>
-                                Sair da conta
-                            </button>
+                            }}>Sair da conta</button>
                         </div>
                     ) : (
                         <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-                            {/* Doc type selector */}
-                            <div>
-                                <label style={{ fontSize: 13, fontWeight: 600, marginBottom: 8, display: 'block' }}>
-                                    Tipo de documento
-                                </label>
-                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
-                                    {DOC_TYPES.map(dt => (
+                            {REQUIRED_DOCS.map(doc => {
+                                const file = files[doc.type];
+                                const preview = previews[doc.type];
+                                return (
+                                    <div key={doc.type} style={{
+                                        padding: '16px', borderRadius: 12,
+                                        border: file ? '1px solid hsl(142 76% 36% / 0.3)' : '1px solid hsl(var(--border))',
+                                        background: file ? 'hsl(142 76% 36% / 0.03)' : 'transparent',
+                                    }}>
+                                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                                                <span style={{ fontSize: 20 }}>{doc.icon}</span>
+                                                <div>
+                                                    <div style={{ fontSize: 14, fontWeight: 700 }}>{doc.label}</div>
+                                                    <div style={{ fontSize: 12, color: 'hsl(var(--muted-foreground))' }}>{doc.desc}</div>
+                                                </div>
+                                            </div>
+                                            {file && <CheckCircle size={18} style={{ color: 'hsl(142 76% 36%)' }} />}
+                                        </div>
+
+                                        <input
+                                            ref={el => { fileRefs.current[doc.type] = el; }}
+                                            type="file"
+                                            accept=".jpg,.jpeg,.png"
+                                            onChange={e => handleFileSelect(doc.type, e.target.files?.[0] || null)}
+                                            style={{ display: 'none' }}
+                                        />
+
                                         <button
-                                            key={dt.value}
-                                            onClick={() => setSelectedType(dt.value)}
+                                            onClick={() => fileRefs.current[doc.type]?.click()}
                                             style={{
-                                                padding: '10px 12px', borderRadius: 10, cursor: 'pointer', textAlign: 'left',
-                                                border: selectedType === dt.value ? '2px solid hsl(142 76% 36%)' : '1px solid hsl(var(--border))',
-                                                background: selectedType === dt.value ? 'hsl(142 76% 36% / 0.05)' : 'transparent',
-                                                fontSize: 13, fontWeight: 600,
+                                                width: '100%', padding: '14px', borderRadius: 8, cursor: 'pointer',
+                                                border: '1px dashed hsl(var(--border))', background: 'transparent',
+                                                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
                                             }}
                                         >
-                                            <div>{dt.label}</div>
-                                            <div style={{ fontSize: 11, fontWeight: 400, color: 'hsl(var(--muted-foreground))', marginTop: 2 }}>{dt.desc}</div>
+                                            <Upload size={16} style={{ color: 'hsl(var(--muted-foreground))' }} />
+                                            <span style={{ fontSize: 13, color: 'hsl(var(--muted-foreground))' }}>
+                                                {file ? file.name : 'Selecionar arquivo (JPG, PNG — máx 5MB)'}
+                                            </span>
                                         </button>
-                                    ))}
-                                </div>
-                            </div>
 
-                            {/* File picker */}
-                            <div>
-                                <label style={{ fontSize: 13, fontWeight: 600, marginBottom: 8, display: 'block' }}>Arquivo</label>
-                                <input ref={fileRef} type="file" accept=".jpg,.jpeg,.png,.pdf" onChange={e => setSelectedFile(e.target.files?.[0] || null)} style={{ display: 'none' }} />
-                                <button onClick={() => fileRef.current?.click()} style={{
-                                    width: '100%', padding: 20, borderRadius: 10, cursor: 'pointer',
-                                    border: '1px dashed hsl(var(--border))', background: 'transparent',
-                                    display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8,
-                                }}>
-                                    <Upload size={24} style={{ color: 'hsl(var(--muted-foreground))' }} />
-                                    <span style={{ fontSize: 13, color: 'hsl(var(--muted-foreground))' }}>
-                                        {selectedFile ? selectedFile.name : 'Clique para selecionar (JPG, PNG, PDF — máx 5MB)'}
-                                    </span>
-                                </button>
-                            </div>
+                                        {preview && file && file.type.startsWith('image/') && (
+                                            <div style={{ marginTop: 10, borderRadius: 8, overflow: 'hidden', maxHeight: 120 }}>
+                                                <img src={preview} alt={doc.label} style={{ width: '100%', height: 120, objectFit: 'cover', borderRadius: 8 }} />
+                                            </div>
+                                        )}
+                                    </div>
+                                );
+                            })}
 
                             <button
                                 onClick={handleUpload}
-                                disabled={uploading || !selectedType || !selectedFile}
+                                disabled={uploading || !allUploaded}
                                 style={{
-                                    padding: '12px', borderRadius: 10, border: 'none',
-                                    background: uploading ? 'hsl(var(--muted))' : 'linear-gradient(135deg, hsl(142 76% 36%), hsl(160 84% 39%))',
-                                    color: '#fff', fontSize: 14, fontWeight: 700, cursor: uploading ? 'not-allowed' : 'pointer',
-                                    opacity: uploading ? 0.6 : 1,
+                                    padding: '14px', borderRadius: 10, border: 'none',
+                                    background: uploading || !allUploaded ? 'hsl(var(--muted))' : 'linear-gradient(135deg, hsl(142 76% 36%), hsl(160 84% 39%))',
+                                    color: '#fff', fontSize: 14, fontWeight: 700,
+                                    cursor: uploading || !allUploaded ? 'not-allowed' : 'pointer',
+                                    opacity: uploading || !allUploaded ? 0.6 : 1,
                                 }}
                             >
-                                {uploading ? 'Enviando...' : 'Enviar documento'}
+                                {uploading ? 'Enviando...' : `Enviar ${REQUIRED_DOCS.filter(d => files[d.type]).length}/3 documentos`}
                             </button>
                         </div>
                     )}
@@ -163,9 +187,7 @@ export default function KycGateScreen({ status, onStatusChange }: Props) {
                     <button onClick={logout} style={{
                         background: 'none', border: 'none', color: 'hsl(var(--muted-foreground))',
                         fontSize: 12, cursor: 'pointer',
-                    }}>
-                        Sair da conta
-                    </button>
+                    }}>Sair da conta</button>
                 </div>
             </motion.div>
         </div>

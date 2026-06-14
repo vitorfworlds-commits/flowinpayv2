@@ -66,7 +66,7 @@ function Navbar() {
                     </button>
 
                     {/* Desktop nav */}
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                    <div className="landing-desktop-nav" style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                         {['features', 'pricing'].map(item => (
                             <button key={item} onClick={() => scrollTo(item)}
                                 style={{ padding: '8px 14px', borderRadius: 8, background: 'none', border: 'none', color: 'hsl(215 18% 55%)', fontSize: 13, fontWeight: 500, cursor: 'pointer' }}
@@ -82,7 +82,7 @@ function Navbar() {
                         >Docs</button>
                     </div>
 
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                    <div className="landing-desktop-nav" style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                         <button onClick={() => nav('/login')} className="btn btn-ghost" style={{ fontSize: 13, color: 'hsl(215 18% 55%)' }}>Login</button>
                         <button onClick={() => nav('/register')} className="btn btn-primary" style={{ fontSize: 13, display: 'flex', alignItems: 'center', gap: 6 }}>Come\u00e7ar <ArrowRight size={14} /></button>
                     </div>
@@ -126,18 +126,18 @@ function Hero() {
                         Gateway de pagamentos PIX
                     </div>
 
-                    <h1 style={{ fontSize: 48, fontWeight: 800, lineHeight: 1.08, letterSpacing: '-0.04em', marginBottom: 24, color: 'hsl(210 40% 96%)' }}>
+                    <h1 className="landing-h1" style={{ fontSize: 48, fontWeight: 800, lineHeight: 1.08, letterSpacing: '-0.04em', marginBottom: 24, color: 'hsl(210 40% 96%)' }}>
                         Receba pagamentos PIX{' '}
                         <span style={{ background: 'linear-gradient(135deg, hsl(142 76% 40%), hsl(160 84% 42%))', WebkitBackgroundClip: 'text', backgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
                             de forma simples
                         </span>
                     </h1>
 
-                    <p style={{ fontSize: 18, lineHeight: 1.6, maxWidth: 640, margin: '0 auto 40px', color: 'hsl(215 18% 50%)' }}>
+                    <p className="landing-hero-sub" style={{ fontSize: 18, lineHeight: 1.6, maxWidth: 640, margin: '0 auto 40px', color: 'hsl(215 18% 50%)' }}>
                         Plataforma completa para empres\u00e1rios e desenvolvedores. PIX instant\u00e2neo, API REST, webhooks e saques autom\u00e1ticos. Integre em minutos, receba em segundos.
                     </p>
 
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12, marginBottom: 48, flexWrap: 'wrap' }}>
+                    <div className="landing-cta-wrap" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12, marginBottom: 48, flexWrap: 'wrap' }}>
                         <button onClick={() => nav('/register')} className="btn btn-primary" style={{ fontSize: 16, padding: '12px 32px', height: 48 }}>Come\u00e7ar gr\u00e1tis <ArrowRight size={18} /></button>
                         <button onClick={() => nav('/docs')} className="btn btn-secondary" style={{ fontSize: 16, padding: '12px 32px', height: 48, background: 'hsl(220 30% 11%)', borderColor: 'hsl(220 25% 18%)', color: 'hsl(210 40% 80%)' }}>
                             <Code2 size={16} /> Ver documenta\u00e7\u00e3o
@@ -166,7 +166,7 @@ function StatsBar() {
     return (
         <motion.section variants={stagger} initial="hidden" whileInView="visible" viewport={{ once: true, margin: '-50px' }}
             style={{ maxWidth: 960, margin: '0 auto 80px', padding: '0 24px' }}>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', borderRadius: 16, overflow: 'hidden', background: 'hsl(var(--card))', border: '1px solid hsl(var(--border))' }}>
+            <div className="landing-stats-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', borderRadius: 16, overflow: 'hidden', background: 'hsl(var(--card))', border: '1px solid hsl(var(--border))' }}>
                 {STATS.map((s, i) => (
                     <motion.div key={s.label} variants={fadeUp}
                         style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '24px 16px', borderRight: i < 3 ? '1px solid hsl(var(--border))' : 'none' }}>
@@ -189,7 +189,7 @@ function Features() {
                     <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '4px 12px', borderRadius: 999, fontSize: 12, fontWeight: 600, marginBottom: 20, background: 'hsl(142 76% 36% / 0.08)', border: '1px solid hsl(142 76% 36% / 0.15)', color: 'hsl(142 76% 45%)' }}>
                         Funcionalidades
                     </div>
-                    <h2 style={{ fontSize: 40, fontWeight: 800, letterSpacing: '-0.03em', marginBottom: 16, color: 'hsl(210 40% 96%)' }}>
+                    <h2 className="landing-h2" style={{ fontSize: 40, fontWeight: 800, letterSpacing: '-0.03em', marginBottom: 16, color: 'hsl(210 40% 96%)' }}>
                         Tudo que voc\u00ea precisa para{' '}
                         <span style={{ background: 'linear-gradient(135deg, hsl(142 76% 40%), hsl(160 84% 42%))', WebkitBackgroundClip: 'text', backgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>receber PIX</span>
                     </h2>
@@ -199,6 +199,7 @@ function Features() {
                 </motion.div>
 
                 <motion.div variants={stagger} initial="hidden" whileInView="visible" viewport={{ once: true }}
+                    className="landing-features-grid"
                     style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 16 }}>
                     {FEATURES.map(f => (
                         <motion.div key={f.title} variants={fadeUp} className="card card-glow" style={{ padding: 28, display: 'flex', flexDirection: 'column', gap: 16, background: 'hsl(var(--card))' }}>
@@ -226,13 +227,14 @@ function HowItWorks() {
                     <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '4px 12px', borderRadius: 999, fontSize: 12, fontWeight: 600, marginBottom: 20, background: 'hsl(217 91% 60% / 0.08)', border: '1px solid hsl(217 91% 60% / 0.15)', color: 'hsl(217 91% 60%)' }}>
                         Como funciona
                     </div>
-                    <h2 style={{ fontSize: 40, fontWeight: 800, letterSpacing: '-0.03em', color: 'hsl(210 40% 96%)' }}>
+                    <h2 className="landing-h2" style={{ fontSize: 40, fontWeight: 800, letterSpacing: '-0.03em', color: 'hsl(210 40% 96%)' }}>
                         Tr\u00eas passos para{' '}
                         <span style={{ background: 'linear-gradient(135deg, hsl(217 91% 60%), hsl(262 83% 58%))', WebkitBackgroundClip: 'text', backgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>come\u00e7ar</span>
                     </h2>
                 </motion.div>
 
                 <motion.div variants={stagger} initial="hidden" whileInView="visible" viewport={{ once: true }}
+                    className="landing-steps-grid"
                     style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: 32 }}>
                     {STEPS.map(s => (
                         <motion.div key={s.num} variants={scaleIn} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
@@ -265,7 +267,7 @@ function Pricing() {
                     <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '4px 12px', borderRadius: 999, fontSize: 12, fontWeight: 600, marginBottom: 20, background: 'hsl(262 83% 58% / 0.08)', border: '1px solid hsl(262 83% 58% / 0.15)', color: 'hsl(262 83% 58%)' }}>
                         Pre\u00e7os
                     </div>
-                    <h2 style={{ fontSize: 40, fontWeight: 800, letterSpacing: '-0.03em', marginBottom: 16, color: 'hsl(210 40% 96%)' }}>
+                    <h2 className="landing-h2" style={{ fontSize: 40, fontWeight: 800, letterSpacing: '-0.03em', marginBottom: 16, color: 'hsl(210 40% 96%)' }}>
                         Simples e{' '}
                         <span style={{ background: 'linear-gradient(135deg, hsl(262 83% 58%), hsl(217 91% 60%))', WebkitBackgroundClip: 'text', backgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>transparente</span>
                     </h2>
@@ -290,7 +292,7 @@ function Pricing() {
                             <button onClick={() => nav('/register')} className="btn btn-primary" style={{ fontSize: 14, padding: '10px 28px', height: 44 }}>Come\u00e7ar agora <ArrowRight size={16} /></button>
                         </div>
                         <div style={{ height: 1, marginBottom: 32, background: 'hsl(var(--border))' }} />
-                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 16 }}>
+                        <div className="landing-pricing-features" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 16 }}>
                             {PRICING.map(f => (
                                 <div key={f} style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                                     <CheckCircle size={16} style={{ color: 'hsl(142 76% 40%)', flexShrink: 0 }} />
@@ -314,7 +316,7 @@ function CTA() {
                 <div style={{ position: 'relative', borderRadius: 16, padding: '56px 40px', textAlign: 'center', overflow: 'hidden', background: 'linear-gradient(135deg, hsl(224 45% 6%), hsl(224 40% 8%))', border: '1px solid hsl(142 76% 36% / 0.15)' }}>
                     <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', opacity: 0.04, backgroundImage: 'linear-gradient(hsl(0 0% 100% / 0.06) 1px, transparent 1px), linear-gradient(90deg, hsl(0 0% 100% / 0.06) 1px, transparent 1px)', backgroundSize: '48px 48px' }} />
                     <div style={{ position: 'relative' }}>
-                        <h2 style={{ fontSize: 40, fontWeight: 800, letterSpacing: '-0.03em', marginBottom: 16, color: 'hsl(210 40% 96%)' }}>
+                        <h2 className="landing-h2" style={{ fontSize: 40, fontWeight: 800, letterSpacing: '-0.03em', marginBottom: 16, color: 'hsl(210 40% 96%)' }}>
                             Pronto para{' '}
                             <span style={{ background: 'linear-gradient(135deg, hsl(142 76% 40%), hsl(160 84% 42%))', WebkitBackgroundClip: 'text', backgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>receber PIX</span>?
                         </h2>
@@ -334,7 +336,7 @@ function Footer() {
     return (
         <footer style={{ padding: '64px 24px 32px', borderTop: '1px solid hsl(var(--border))' }}>
             <div style={{ maxWidth: 1152, margin: '0 auto' }}>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: 40, marginBottom: 56 }}>
+                <div className="landing-footer-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: 40, marginBottom: 56 }}>
                     <div>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
                             <div style={{ width: 30, height: 30, borderRadius: 10, background: 'linear-gradient(135deg, hsl(142 76% 36%), hsl(142 71% 45%))', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 800, fontSize: 12 }}>F</div>

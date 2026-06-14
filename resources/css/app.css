@@ -1546,6 +1546,34 @@ body {
   .detail-row { flex-direction: column; gap: 2px; }
   .detail-row span:nth-child(2) { width: 100%; }
   .detail-row span:nth-child(3) { margin-left: 0; text-align: left; }
+
+  /* Landing mobile */
+  .landing-mobile-btn { display: block !important; }
+  .landing-desktop-nav { display: none !important; }
+  .landing-stats-grid { grid-template-columns: 1fr 1fr !important; }
+  .landing-stats-grid > div { border-right: none !important; border-bottom: 1px solid hsl(var(--border)); }
+  .landing-stats-grid > div:nth-child(2) { border-right: none !important; }
+  .landing-features-grid { grid-template-columns: 1fr !important; }
+  .landing-steps-grid { grid-template-columns: 1fr !important; }
+  .landing-pricing-features { grid-template-columns: 1fr !important; }
+  .landing-footer-grid { grid-template-columns: 1fr 1fr !important; gap: 24px !important; }
+  .landing-h1 { font-size: 32px !important; }
+  .landing-h2 { font-size: 28px !important; }
+  .landing-hero-sub { font-size: 15px !important; }
+  .landing-cta-wrap { flex-direction: column !important; }
+  .landing-cta-wrap button { width: 100% !important; }
+}
+
+/* ============================================================
+   RESPONSIVE — 768px
+   ============================================================ */
+@media (max-width: 768px) {
+  .landing-mobile-btn { display: block !important; }
+  .landing-desktop-nav { display: none !important; }
+  .landing-stats-grid { grid-template-columns: 1fr 1fr !important; }
+  .landing-h1 { font-size: 36px !important; }
+  .landing-h2 { font-size: 32px !important; }
+  .landing-footer-grid { grid-template-columns: 1fr 1fr !important; }
 }
 
 /* ============================================================

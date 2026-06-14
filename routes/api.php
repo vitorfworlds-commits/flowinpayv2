@@ -58,8 +58,8 @@ Route::middleware(['auth:sanctum', 'throttle:120,1'])->group(function () {
     // Withdrawals (saques) — rate mais restritivo
     Route::get('/withdrawals', [WithdrawalController::class, 'index']);
     Route::get('/withdrawals/{id}', [WithdrawalController::class, 'show']);
-    Route::post('/withdrawals', [WithdrawalController::class, 'store'])->middleware('throttle:5,1');
-    Route::post('/withdrawals/{id}/cancel', [WithdrawalController::class, 'cancel'])->middleware('throttle:10,1');
+    Route::post('/withdrawals', [WithdrawalController::class, 'store'])->middleware('throttle:60,1');
+    Route::post('/withdrawals/{id}/cancel', [WithdrawalController::class, 'cancel'])->middleware('throttle:60,1');
 
     // Fee current (qualquer usuário autenticado pode ver a taxa vigente)
     Route::get('/fees/current', [FeeConfigController::class, 'current']);
@@ -95,14 +95,14 @@ Route::middleware(['auth:sanctum', 'throttle:120,1'])->group(function () {
     Route::put('/webhooks/{id}', [WebhookConfigController::class, 'update']);
     Route::delete('/webhooks/{id}', [WebhookConfigController::class, 'destroy']);
     Route::post('/webhooks/{id}/toggle', [WebhookConfigController::class, 'toggle']);
-    Route::post('/webhooks/{id}/regenerate-secret', [WebhookConfigController::class, 'regenerateSecret'])->middleware('throttle:5,1');
+    Route::post('/webhooks/{id}/regenerate-secret', [WebhookConfigController::class, 'regenerateSecret'])->middleware('throttle:60,1');
     Route::post('/webhooks/{id}/test', [WebhookConfigController::class, 'test']);
     Route::post('/api-keys', [ApiKeyController::class, 'store']);
     Route::get('/api-keys/{id}', [ApiKeyController::class, 'show']);
     Route::put('/api-keys/{id}', [ApiKeyController::class, 'update']);
     Route::patch('/api-keys/{id}/toggle', [ApiKeyController::class, 'toggle']);
     Route::delete('/api-keys/{id}', [ApiKeyController::class, 'destroy']);
-    Route::post('/api-keys/{id}/regenerate', [ApiKeyController::class, 'regenerate'])->middleware('throttle:5,1');
+    Route::post('/api-keys/{id}/regenerate', [ApiKeyController::class, 'regenerate'])->middleware('throttle:60,1');
 });
 
 // ========== API EXTERNA (autenticada via X-Api-Key) ==========

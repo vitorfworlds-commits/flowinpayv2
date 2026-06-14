@@ -161,21 +161,22 @@ class OpenPixService implements AcquirerInterface
         return hash_equals($expected, $signature);
     }
 
-    public function refund(string $endToEndId, float $value, string $correlationId = null): array
+    public function refund(string $correlationId, float $value, string $refundCorrelationId = null): array
     {
-        $payload = [
-            'value' => (int) ($value * 100),
-            'transactionEndToEndId' => $endToEndId,
-        ];
-
-        if ($correlationId) {
-            $payload['correlationID'] = $correlationId;
+        if (!$refundCorrelationId) {
+            $refundCorrelationId = 'refund_' . time() . '_' . bin2hex(random_bytes(8));
         }
 
+        $payload = [
+            'correlationID' => $refundCorrelationId,
+            'value' => (int) ($value * 100),
+        ];
+
+        // POST /api/v1/charge/{correlationID}/refund — correlationID of the CHARGE in URL
         $response = Http::withHeaders($this->headers())
             ->timeout(30)
 
-            ->post("{$this->baseUrl}/api/v1/refund", $payload);
+            ->post("{$this->baseUrl}/api/v1/charge/{$correlationId}/refund", $payload);
 
         if ($response->failed()) {
             Log::error('OpenPix refund failed', [

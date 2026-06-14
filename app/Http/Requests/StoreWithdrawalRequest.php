@@ -20,7 +20,7 @@ class StoreWithdrawalRequest extends FormRequest
             'value' => 'required|numeric|min:' . $fee->minimum_withdrawal . '|max:' . $fee->maximum_withdrawal,
             'pix_key' => 'required|string|max:255',
             'pix_key_type' => 'required|in:cpf,cnpj,email,phone,random',
-            'acquirer_id' => 'required|exists:acquirers,id',
+            'acquirer_id' => 'nullable|exists:acquirers,id',
             'description' => 'nullable|string|max:255',
         ];
     }

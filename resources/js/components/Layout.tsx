@@ -3,6 +3,7 @@ import { Outlet, Navigate, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Menu, X, Shield, Upload, Clock, CheckCircle, AlertTriangle } from 'lucide-react';
 import Sidebar from './Sidebar';
+import KycGateScreen from './KycGateScreen';
 import { useAuthStore } from '@/store/useAuthStore';
 import api from '@/lib/api';
 import toast from 'react-hot-toast';
@@ -115,81 +116,3 @@ export default function Layout() {
     );
 }
 
-function KycGateScreen({ status, onStatusChange }: { status: string; onStatusChange: (s: string) => void }) {
-    const { logout } = useAuthStore();
-    const [selectedType, setSelectedType] = useState('');
-    const [selectedFile, setSelectedFile] = useState<File | null>(null);
-    const [uploading, setUploading] = useState(false);
-    const fileRef = useRef<HTMLInputElement>(null);
-    const nav = useNavigate();
-
-    const DOC_TYPES = [
-        { value: 'cpf', label: 'RG ou CPF', desc: 'Documento de identidade' },
-        { value: 'cnpj', label: 'CNPJ', desc: 'Cartão CNPJ ou certificado' },
-        { value: 'selfie', label: 'Selfie', desc: 'Selfie segurando documento' },
-        { value: 'comprovante_residencia', label: 'Comprovante', desc: 'Comprovante de residência' },
-    ];
-
-    const handleUpload = async () => {
-        if (!selectedType || !selectedFile) { toast.error('Selecione tipo e arquivo'); return; }
-        if (selectedFile.size > 5 * 1024 * 1024) { toast.error('Máx 5MB'); return; }
-        setUploading(true);
-        try {
-            const form = new FormData();
-            form.append('document_type', selectedType);
-            form.append('file', selectedFile);
-            await api.post('/kyc', form, { headers: { 'Content-Type': 'multipart/form-data' } });
-            toast.success('Documento enviado! Aguarde análise.');
-            onStatusChange('pending');
-        } catch (err: any) {
-            toast.error(err.response?.data?.message || 'Erro ao enviar');
-        } finally { setUploading(false); }
-    };
-
-    return (
-        <div style={{ minHeight: '100vh', background: 'hsl(var(--background))', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} style={{ width: '100%', maxWidth: 480 }}>
-                <div style={{ textAlign: 'center', marginBottom: 32 }}>
-                    <div style={{ width: 64, height: 64, borderRadius: '50%', margin: '0 auto 16px', background: status === 'pending' ? 'hsl(38 92% 50% / 0.1)' : 'hsl(0 84% 60% / 0.1)', color: status === 'pending' ? 'hsl(38 92% 50%)' : 'hsl(0 84% 60%)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                        {status === 'pending' ? <Clock size={28} /> : <AlertTriangle size={28} />}
-                    </div>
-                    <h1 style={{ fontSize: 22, fontWeight: 800, marginBottom: 8 }}>
-                        {status === 'pending' ? 'Documentos em análise' : status === 'rejected' ? 'Documentos rejeitados' : 'Verificação necessária'}
-                    </h1>
-                    <p style={{ color: 'hsl(var(--muted-foreground))', fontSize: 14, lineHeight: 1.6 }}>
-                        {status === 'pending'
-                            ? 'Seus documentos estão sendo analisados. Você será notificado quando aprovado.'
-                            : status === 'rejected'
-                            ? 'Seus documentos foram rejeitados. Envie novamente.'
-                            : 'Para usar a plataforma, envie seus documentos de identificação.'}
-                    </p>
-                </div>
-
-                {status === 'pending' ? (
-                    <div style={{ textAlign: 'center' }}>
-                        <button onClick={() => { logout(); nav('/login'); }} style={{ padding: '10px 24px', borderRadius: 8, background: 'none', border: '1px solid hsl(var(--border))', color: 'hsl(var(--muted-foreground))', fontSize: 13, cursor: 'pointer' }}>Sair da conta</button>
-                    </div>
-                ) : (
-                    <div style={{ background: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: 16, padding: 24 }}>
-                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 16 }}>
-                            {DOC_TYPES.map(dt => (
-                                <button key={dt.value} onClick={() => setSelectedType(dt.value)} style={{ padding: '10px 12px', borderRadius: 10, cursor: 'pointer', textAlign: 'left', border: selectedType === dt.value ? '2px solid hsl(142 76% 36%)' : '1px solid hsl(var(--border))', background: selectedType === dt.value ? 'hsl(142 76% 36% / 0.05)' : 'transparent', fontSize: 13, fontWeight: 600 }}>
-                                    <div>{dt.label}</div>
-                                    <div style={{ fontSize: 11, fontWeight: 400, color: 'hsl(var(--muted-foreground))' }}>{dt.desc}</div>
-                                </button>
-                            ))}
-                        </div>
-                        <input ref={fileRef} type="file" accept=".jpg,.jpeg,.png,.pdf" onChange={e => setSelectedFile(e.target.files?.[0] || null)} style={{ display: 'none' }} />
-                        <button onClick={() => fileRef.current?.click()} style={{ width: '100%', padding: 16, borderRadius: 10, cursor: 'pointer', border: '1px dashed hsl(var(--border))', background: 'transparent', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, marginBottom: 16 }}>
-                            <Upload size={20} style={{ color: 'hsl(var(--muted-foreground))' }} />
-                            <span style={{ fontSize: 13, color: 'hsl(var(--muted-foreground))' }}>{selectedFile ? selectedFile.name : 'Selecionar arquivo (JPG, PNG, PDF — máx 5MB)'}</span>
-                        </button>
-                        <button onClick={handleUpload} disabled={uploading || !selectedType || !selectedFile} style={{ width: '100%', padding: '12px', borderRadius: 10, border: 'none', background: uploading ? 'hsl(var(--muted))' : 'linear-gradient(135deg, hsl(142 76% 36%), hsl(160 84% 39%))', color: '#fff', fontSize: 14, fontWeight: 700, cursor: uploading ? 'not-allowed' : 'pointer', opacity: uploading ? 0.6 : 1 }}>
-                            {uploading ? 'Enviando...' : 'Enviar documento'}
-                        </button>
-                    </div>
-                )}
-            </motion.div>
-        </div>
-    );
-}

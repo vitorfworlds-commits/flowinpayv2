@@ -1574,6 +1574,12 @@ body {
   .landing-h1 { font-size: 36px !important; }
   .landing-h2 { font-size: 32px !important; }
   .landing-footer-grid { grid-template-columns: 1fr 1fr !important; }
+
+  /* Docs responsive */
+  .docs-layout { flex-direction: column !important; }
+  .docs-sidebar { width: 100% !important; position: relative !important; height: auto !important; max-height: 50vh; border-right: none !important; border-bottom: 1px solid hsl(var(--border)) !important; }
+  .docs-main { padding: 24px 16px !important; }
+  .docs-table-wrap { overflow-x: auto; }
 }
 
 /* ============================================================

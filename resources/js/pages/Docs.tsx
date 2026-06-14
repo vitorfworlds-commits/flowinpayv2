@@ -485,8 +485,8 @@ export default function Docs() {
   };
 
   return (
-    <div style={{ display: 'flex', minHeight: '100vh', background: 'hsl(var(--background))' }}>
-      <aside style={{ width: 260, flexShrink: 0, borderRight: '1px solid hsl(var(--border))', padding: '24px 0', position: 'sticky', top: 0, height: '100vh', overflowY: 'auto', background: 'hsl(var(--card))' }}>
+    <div className="docs-layout" style={{ display: 'flex', minHeight: '100vh', background: 'hsl(var(--background))' }}>
+      <aside className="docs-sidebar" style={{ width: 260, flexShrink: 0, borderRight: '1px solid hsl(var(--border))', padding: '24px 0', position: 'sticky', top: 0, height: '100vh', overflowY: 'auto', background: 'hsl(var(--card))' }}>
         <div style={{ padding: '0 20px', marginBottom: 28, display: 'flex', alignItems: 'center', gap: 10 }}>
           <div style={{ width: 28, height: 28, borderRadius: 7, background: 'linear-gradient(135deg, hsl(142 76% 36%), hsl(160 84% 39%))', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <Code size={15} color="#fff" />
@@ -513,7 +513,7 @@ export default function Docs() {
           })}
         </nav>
       </aside>
-      <main style={{ flex: 1, padding: '40px 56px', maxWidth: 860 }}>
+      <main className="docs-main" style={{ flex: 1, padding: '40px 56px', maxWidth: 860 }}>
         {renderSection()}
       </main>
     </div>

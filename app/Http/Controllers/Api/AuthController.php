@@ -7,8 +7,11 @@ use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Mail\PasswordResetMail;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rules\Password;
@@ -111,6 +114,76 @@ class AuthController extends Controller
         return response()->json([
             'user' => $this->sanitizeUser($request->user()->fresh()),
         ]);
+    }
+
+    public function forgotPassword(Request $request): JsonResponse
+    {
+        $throttleKey = 'forgot:' . $request->ip();
+        if (RateLimiter::tooManyAttempts($throttleKey, 3)) {
+            return response()->json(['message' => 'Muitas requisições. Tente novamente mais tarde.'], 429);
+        }
+        RateLimiter::hit($throttleKey, 3600);
+
+        $request->validate(['email' => 'required|email']);
+
+        $user = User::where('email', $request->email)->first();
+
+        // Always return success to prevent email enumeration
+        if (!$user) {
+            return response()->json(['message' => 'Se o email existir, um link de redefinição será enviado.']);
+        }
+
+        $token = Str::random(64);
+
+        DB::table('password_reset_tokens')->updateOrInsert(
+            ['email' => $user->email],
+            ['token' => Hash::make($token), 'created_at' => now()]
+        );
+
+        try {
+            Mail::to($user->email)->send(new PasswordResetMail($token, $user->email));
+        } catch (\Exception $e) {
+            Log::error('Failed to send password reset email', ['error' => $e->getMessage()]);
+            return response()->json(['message' => 'Erro ao enviar email. Tente novamente mais tarde.'], 500);
+        }
+
+        return response()->json(['message' => 'Se o email existir, um link de redefinição será enviado.']);
+    }
+
+    public function resetPassword(Request $request): JsonResponse
+    {
+        $request->validate([
+            'email' => 'required|email',
+            'token' => 'required|string',
+            'password' => ['required', 'string', 'min:8', 'confirmed'],
+        ]);
+
+        $resetRecord = DB::table('password_reset_tokens')
+            ->where('email', $request->email)
+            ->first();
+
+        if (!$resetRecord || !Hash::check($request->token, $resetRecord->token)) {
+            return response()->json(['message' => 'Token inválido ou expirado.'], 422);
+        }
+
+        // Check if token is older than 60 minutes
+        if (now()->diffInMinutes($resetRecord->created_at) > 60) {
+            DB::table('password_reset_tokens')->where('email', $request->email)->delete();
+            return response()->json(['message' => 'Token expirado. Solicite um novo link.'], 422);
+        }
+
+        $user = User::where('email', $request->email)->first();
+        if (!$user) {
+            return response()->json(['message' => 'Usuário não encontrado.'], 404);
+        }
+
+        $user->update(['password' => Hash::make($request->password)]);
+        DB::table('password_reset_tokens')->where('email', $request->email)->delete();
+
+        // Revoke all existing tokens
+        $user->tokens()->delete();
+
+        return response()->json(['message' => 'Senha redefinida com sucesso. Faça login com sua nova senha.']);
     }
 
     private function sanitizeUser(User $user): array

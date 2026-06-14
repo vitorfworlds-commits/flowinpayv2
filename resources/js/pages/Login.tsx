@@ -163,7 +163,7 @@ export default function Login() {
                             <div className="input-group">
                                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                     <label className="input-label">Senha</label>
-                                    <a href="#" style={{ fontSize: 12, color: 'hsl(142 76% 40%)', textDecoration: 'none', fontWeight: 500 }}>
+                                    <a href="/forgot-password" style={{ fontSize: 12, color: 'hsl(142 76% 40%)', textDecoration: 'none', fontWeight: 500 }}>
                                         Esqueceu a senha?
                                     </a>
                                 </div>

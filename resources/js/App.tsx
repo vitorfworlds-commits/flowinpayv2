@@ -18,6 +18,8 @@ import ChargeDetail from './pages/ChargeDetail';
 import Pay from './pages/Pay';
 import Docs from './pages/Docs';
 import Landing from './pages/Landing';
+import ForgotPassword from './pages/ForgotPassword';
+import ResetPassword from './pages/ResetPassword';
 import '../css/app.css';
 
 const root = createRoot(document.getElementById('app')!);
@@ -40,6 +42,8 @@ root.render(
                 <Route path="/pay/:correlationId" element={<Pay />} />
                 <Route path="/docs" element={<Docs />} />
                 <Route path="/login" element={<Login />} />
+                <Route path="/forgot-password" element={<ForgotPassword />} />
+                <Route path="/reset-password" element={<ResetPassword />} />
                 <Route path="/register" element={<Register />} />
                 <Route element={<Layout />}>
                     <Route path="/dashboard" element={<Dashboard />} />

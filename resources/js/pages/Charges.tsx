@@ -99,16 +99,13 @@ export default function Charges() {
       if (endDate) params.end_date = endDate;
       const { data } = await api.get('/charges', { params });
       const res: PaginatedResponse = data;
-      // Filter out _stats from data
-      const statsEntry = res.data.find((c: any) => c._stats);
-      const cleanData = res.data.filter((c: any) => !c._stats);
-      setCharges(cleanData);
+      setCharges(res.data);
       setPage(res.current_page);
       setLastPage(res.last_page);
       setTotal(res.total);
 
-      if (statsEntry?._stats) {
-        setStats(statsEntry._stats);
+      if (res.stats) {
+        setStats(res.stats);
       }
     } catch {
       toast.error('Erro ao carregar cobranças');

@@ -78,9 +78,10 @@ class ChargeController extends Controller
         ];
 
         $paginated = $query->paginate(15);
-        $paginated->getCollection()->put('_stats', $stats);
+        $result = $paginated->toArray();
+        $result['stats'] = $stats;
 
-        return response()->json($paginated);
+        return response()->json($result);
     }
 
     public function store(StoreChargeRequest $request): JsonResponse

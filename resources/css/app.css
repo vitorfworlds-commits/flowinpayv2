@@ -1557,6 +1557,11 @@ body {
   .landing-steps-grid { grid-template-columns: 1fr !important; }
   .landing-pricing-features { grid-template-columns: 1fr !important; }
   .landing-footer-grid { grid-template-columns: 1fr 1fr !important; gap: 24px !important; }
+  .landing-hero-grid { grid-template-columns: 1fr !important; text-align: center; }
+  .landing-hero-visual { order: -1 !important; }
+  .landing-feature-row { grid-template-columns: 1fr !important; text-align: center; }
+  .landing-feature-row > div { order: unset !important; }
+}
   .landing-h1 { font-size: 32px !important; }
   .landing-h2 { font-size: 28px !important; }
   .landing-hero-sub { font-size: 15px !important; }

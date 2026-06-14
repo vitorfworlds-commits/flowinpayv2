@@ -12,6 +12,7 @@ use App\Http\Controllers\Api\DisputeController;
 use App\Http\Controllers\Api\AcquirerController;
 use App\Http\Controllers\Api\WebhookConfigController;
 use App\Http\Controllers\Api\PublicChargeController;
+use App\Http\Controllers\Api\KycController;
 use App\Http\Middleware\AdminMiddleware;
 use Illuminate\Support\Facades\Route;
 
@@ -105,6 +106,12 @@ Route::middleware(['auth:sanctum', 'throttle:120,1'])->group(function () {
     Route::patch('/api-keys/{id}/toggle', [ApiKeyController::class, 'toggle']);
     Route::delete('/api-keys/{id}', [ApiKeyController::class, 'destroy']);
     Route::post('/api-keys/{id}/regenerate', [ApiKeyController::class, 'regenerate'])->middleware('throttle:60,1');
+
+    // KYC
+    Route::get('/kyc', [KycController::class, 'index']);
+    Route::post('/kyc', [KycController::class, 'store']);
+    Route::get('/kyc/{document}', [KycController::class, 'show']);
+    Route::delete('/kyc/{document}', [KycController::class, 'destroy']);
 });
 
 // ========== API EXTERNA (autenticada via X-Api-Key) ==========

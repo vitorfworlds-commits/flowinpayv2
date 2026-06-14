@@ -69,6 +69,11 @@ class User extends Authenticatable
         return $this->hasMany(WebhookConfig::class);
     }
 
+    public function kycDocuments()
+    {
+        return $this->hasMany(KycDocument::class);
+    }
+
     public function defaultAcquirer()
     {
         return $this->belongsTo(Acquirer::class, 'default_acquirer_id');

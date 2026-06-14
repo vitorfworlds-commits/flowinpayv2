@@ -14,6 +14,7 @@ import {
     Moon,
     ShieldAlert,
     Plug,
+    Shield,
 } from 'lucide-react';
 import { useAuthStore } from '@/store/useAuthStore';
 import { useTheme } from '@/components/ThemeProvider';
@@ -34,6 +35,7 @@ const navItems = [
     { to: '/acquirers', icon: Plug, label: 'Adquirentes' },
     { to: '/api-keys', icon: Key, label: 'API Keys' },
     { to: '/fees', icon: Settings, label: 'Taxas', adminOnly: true },
+    { to: '/kyc', icon: Shield, label: 'KYC' },
     { to: '/account', icon: Settings, label: 'Conta' },
 ];
 

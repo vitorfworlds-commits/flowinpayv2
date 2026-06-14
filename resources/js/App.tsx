@@ -17,6 +17,7 @@ import Account from './pages/Account';
 import ChargeDetail from './pages/ChargeDetail';
 import Pay from './pages/Pay';
 import Docs from './pages/Docs';
+import Landing from './pages/Landing';
 import '../css/app.css';
 
 const root = createRoot(document.getElementById('app')!);
@@ -35,6 +36,7 @@ root.render(
                 },
             }} />
             <Routes>
+                <Route path="/" element={<Landing />} />
                 <Route path="/pay/:correlationId" element={<Pay />} />
                 <Route path="/docs" element={<Docs />} />
                 <Route path="/login" element={<Login />} />

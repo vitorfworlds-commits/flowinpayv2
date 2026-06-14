@@ -1,427 +1,157 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { motion, useScroll, useTransform } from 'framer-motion';
+import { motion } from 'framer-motion';
 import {
-    Zap, Shield, Globe, ArrowRight, CheckCircle, Code2,
-    BarChart3, Bell, CreditCard, Wallet, Activity, Server,
-    Lock, FileCheck, Clock, Menu, X
+    ArrowRight, CheckCircle, Code2, BarChart3, Bell, CreditCard,
+    Wallet, Activity, Server, Lock, Shield, Clock, Menu, X
 } from 'lucide-react';
 
-// ------------------------------------------------------------------ //
-// ANIMATION VARIANTS                                                  //
-// ------------------------------------------------------------------ //
-const fadeUp = {
-    hidden: { opacity: 0, y: 30 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] } },
-};
+const fadeUp = { hidden: { opacity: 0, y: 30 }, visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] } } };
+const stagger = { hidden: { opacity: 0 }, visible: { opacity: 1, transition: { staggerChildren: 0.1, delayChildren: 0.05 } } };
+const scaleIn = { hidden: { opacity: 0, scale: 0.92 }, visible: { opacity: 1, scale: 1, transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] } } };
 
-const stagger = {
-    hidden: { opacity: 0 },
-    visible: { opacity: 1, transition: { staggerChildren: 0.1, delayChildren: 0.05 } },
-};
-
-const scaleIn = {
-    hidden: { opacity: 0, scale: 0.92 },
-    visible: { opacity: 1, scale: 1, transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] } },
-};
-
-// ------------------------------------------------------------------ //
-// FEATURE DATA                                                        //
-// ------------------------------------------------------------------ //
 const FEATURES = [
-    {
-        icon: CreditCard,
-        title: 'Cobrancas PIX',
-        description: 'Gere cobrancas PIX com valor, expiracao e descricao personalizados. QR Code e copia-e-cola instantaneos.',
-        color: '142 76% 36%',
-    },
-    {
-        icon: Bell,
-        title: 'Webhooks',
-        description: 'Receba notificacoes em tempo real sobre pagamentos, saques e disputas. Assinatura HMAC para seguranca.',
-        color: '217 91% 60%',
-    },
-    {
-        icon: Wallet,
-        title: 'Saques instantaneos',
-        description: 'Transfira seu saldo para qualquer chave PIX em segundos. Saques programados ou manuais.',
-        color: '262 83% 58%',
-    },
-    {
-        icon: Server,
-        title: 'Multi-adquirente',
-        description: 'Conecte multiplos provedores de pagamento (Woovi, NexusPag, SyncPay) com failover automatico.',
-        color: '38 92% 50%',
-    },
-    {
-        icon: BarChart3,
-        title: 'Dashboard completo',
-        description: 'Graficos de receita, taxa de conversao, ranking de bots e extrato detalhado em tempo real.',
-        color: '142 76% 36%',
-    },
-    {
-        icon: Code2,
-        title: 'API REST',
-        description: 'API documentada com exemplos em curl, PHP e Node.js. Autenticacao por API key no header.',
-        color: '217 91% 60%',
-    },
+    { icon: CreditCard, title: 'Cobran\u00e7as PIX', desc: 'Gere cobran\u00e7as com valor, expira\u00e7\u00e3o e QR Code instant\u00e2neo.', color: '142 76% 36%' },
+    { icon: Bell, title: 'Webhooks', desc: 'Notifica\u00e7\u00f5es em tempo real com assinatura HMAC para seguran\u00e7a.', color: '217 91% 60%' },
+    { icon: Wallet, title: 'Saques instant\u00e2neos', desc: 'Transfira saldo para qualquer chave PIX em segundos.', color: '262 83% 58%' },
+    { icon: Server, title: 'Multi-adquirente', desc: 'Conecte Woovi, NexusPag, SyncPay com failover autom\u00e1tico.', color: '38 92% 50%' },
+    { icon: BarChart3, title: 'Dashboard completo', desc: 'Gr\u00e1ficos de receita, taxa de convers\u00e3o e extrato em tempo real.', color: '142 76% 36%' },
+    { icon: Code2, title: 'API REST', desc: 'Documenta\u00e7\u00e3o completa com exemplos em curl, PHP e Node.js.', color: '217 91% 60%' },
 ];
 
-// ------------------------------------------------------------------ //
-// STEPS DATA                                                          //
-// ------------------------------------------------------------------ //
-const STEPS = [
-    {
-        number: '01',
-        title: 'Crie sua conta',
-        description: 'Registre-se gratuitamente e configure sua conta empresarial em menos de 2 minutos.',
-        icon: FileCheck,
-    },
-    {
-        number: '02',
-        title: 'Integre via API',
-        description: 'Use nossa API REST para criar cobrancas PIX. SDKs disponiveis para PHP, Node.js e Python.',
-        icon: Code2,
-    },
-    {
-        number: '03',
-        title: 'Receba pagamentos',
-        description: 'Pagamentos confirmados em menos de 2 segundos. Webhooks notificam seu sistema automaticamente.',
-        icon: Activity,
-    },
-];
-
-// ------------------------------------------------------------------ //
-// STATS DATA                                                          //
-// ------------------------------------------------------------------ //
 const STATS = [
     { value: 'R$ 0', label: 'taxa de saque' },
-    { value: '<2s', label: 'confirmacao' },
+    { value: '<2s', label: 'confirma\u00e7\u00e3o' },
     { value: '99.9%', label: 'uptime' },
     { value: 'API REST', label: 'completa' },
 ];
 
-// ------------------------------------------------------------------ //
-// PRICING FEATURES                                                    //
-// ------------------------------------------------------------------ //
-const PRICING_FEATURES = [
-    '2.5% por transacao',
-    'R$ 0 taxa de saque',
-    'API completa e documentada',
-    'Webhooks em tempo real',
-    'Dashboard com graficos',
-    'Suporte prioritario',
+const STEPS = [
+    { num: '01', icon: CreditCard, title: 'Crie sua conta', desc: 'Registre-se gratuitamente em menos de 2 minutos.' },
+    { num: '02', icon: Code2, title: 'Integre via API', desc: 'Use nossa API REST para criar cobran\u00e7as PIX.' },
+    { num: '03', icon: Activity, title: 'Receba pagamentos', desc: 'Pagamentos confirmados em menos de 2 segundos.' },
 ];
 
-// ------------------------------------------------------------------ //
-// NAVBAR COMPONENT                                                    //
-// ------------------------------------------------------------------ //
+const PRICING = [
+    '2.5% por transa\u00e7\u00e3o', 'R$ 0 taxa de saque', 'API completa e documentada',
+    'Webhooks em tempo real', 'Dashboard com gr\u00e1ficos', 'Suporte priorit\u00e1rio',
+];
+
 function Navbar() {
-    const navigate = useNavigate();
+    const nav = useNavigate();
     const [scrolled, setScrolled] = useState(false);
-    const [mobileOpen, setMobileOpen] = useState(false);
+    const [open, setOpen] = useState(false);
 
     useEffect(() => {
-        const handleScroll = () => setScrolled(window.scrollY > 20);
-        window.addEventListener('scroll', handleScroll, { passive: true });
-        return () => window.removeEventListener('scroll', handleScroll);
+        const h = () => setScrolled(window.scrollY > 20);
+        window.addEventListener('scroll', h, { passive: true });
+        return () => window.removeEventListener('scroll', h);
     }, []);
 
-    const scrollTo = (id: string) => {
-        setMobileOpen(false);
-        document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
-    };
+    const scrollTo = (id: string) => { setOpen(false); document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' }); };
 
     return (
-        <nav
-            className="fixed top-0 left-0 right-0 z-50 transition-all duration-300"
-            style={{
-                background: scrolled
-                    ? 'hsl(224 45% 5% / 0.88)'
-                    : 'transparent',
-                backdropFilter: scrolled ? 'blur(20px) saturate(1.8)' : 'none',
-                borderBottom: scrolled ? '1px solid hsl(220 25% 14% / 0.6)' : '1px solid transparent',
-            }}
-        >
-            <div className="mx-auto max-w-6xl px-4 sm:px-6">
-                <div className="flex h-16 items-center justify-between">
-                    {/* Logo */}
-                    <button
-                        onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-                        className="flex items-center gap-2.5 bg-transparent border-none cursor-pointer"
-                    >
-                        <div
-                            className="flex items-center justify-center rounded-xl font-extrabold text-white text-sm"
-                            style={{
-                                width: 34, height: 34,
-                                background: 'linear-gradient(135deg, hsl(142 76% 36%), hsl(142 71% 45%))',
-                                boxShadow: '0 4px 16px hsl(142 76% 36% / 0.3)',
-                            }}
-                        >
-                            F
-                        </div>
-                        <span
-                            className="text-base font-bold tracking-tight"
-                            style={{ color: 'hsl(210 40% 96%)' }}
-                        >
-                            FlowinPay
-                        </span>
+        <nav style={{
+            position: 'fixed', top: 0, left: 0, right: 0, zIndex: 50,
+            background: scrolled ? 'hsl(224 45% 5% / 0.88)' : 'transparent',
+            backdropFilter: scrolled ? 'blur(20px) saturate(1.8)' : 'none',
+            borderBottom: scrolled ? '1px solid hsl(220 25% 14% / 0.6)' : '1px solid transparent',
+            transition: 'all 0.3s',
+        }}>
+            <div style={{ maxWidth: 1152, margin: '0 auto', padding: '0 24px' }}>
+                <div style={{ display: 'flex', height: 64, alignItems: 'center', justifyContent: 'space-between' }}>
+                    <button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} style={{ display: 'flex', alignItems: 'center', gap: 10, background: 'none', border: 'none', cursor: 'pointer' }}>
+                        <div style={{ width: 34, height: 34, borderRadius: 12, background: 'linear-gradient(135deg, hsl(142 76% 36%), hsl(142 71% 45%))', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 800, fontSize: 14, boxShadow: '0 4px 16px hsl(142 76% 36% / 0.3)' }}>F</div>
+                        <span style={{ color: 'hsl(210 40% 96%)', fontWeight: 700, fontSize: 16 }}>FlowinPay</span>
                     </button>
 
-                    {/* Desktop nav links */}
-                    <div className="hidden md:flex items-center gap-1">
-                        {['features', 'pricing', 'docs'].map((item) => (
-                            <button
-                                key={item}
-                                onClick={() => item === 'docs' ? navigate('/docs') : scrollTo(item)}
-                                className="px-3.5 py-2 rounded-lg text-[13px] font-medium border-none cursor-pointer transition-colors"
-                                style={{
-                                    color: 'hsl(215 18% 55%)',
-                                    background: 'transparent',
-                                }}
-                                onMouseEnter={(e) => {
-                                    e.currentTarget.style.color = 'hsl(210 40% 96%)';
-                                    e.currentTarget.style.background = 'hsl(220 30% 13%)';
-                                }}
-                                onMouseLeave={(e) => {
-                                    e.currentTarget.style.color = 'hsl(215 18% 55%)';
-                                    e.currentTarget.style.background = 'transparent';
-                                }}
+                    {/* Desktop nav */}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                        {['features', 'pricing'].map(item => (
+                            <button key={item} onClick={() => scrollTo(item)}
+                                style={{ padding: '8px 14px', borderRadius: 8, background: 'none', border: 'none', color: 'hsl(215 18% 55%)', fontSize: 13, fontWeight: 500, cursor: 'pointer' }}
+                                onMouseEnter={e => { e.currentTarget.style.color = 'hsl(210 40% 96%)'; e.currentTarget.style.background = 'hsl(220 30% 13%)'; }}
+                                onMouseLeave={e => { e.currentTarget.style.color = 'hsl(215 18% 55%)'; e.currentTarget.style.background = 'none'; }}
                             >
-                                {item === 'features' ? 'Features' : item === 'pricing' ? 'Precos' : 'Docs'}
+                                {item === 'features' ? 'Features' : 'Pre\u00e7os'}
                             </button>
                         ))}
+                        <button onClick={() => nav('/docs')} style={{ padding: '8px 14px', borderRadius: 8, background: 'none', border: 'none', color: 'hsl(215 18% 55%)', fontSize: 13, fontWeight: 500, cursor: 'pointer' }}
+                            onMouseEnter={e => { e.currentTarget.style.color = 'hsl(210 40% 96%)'; e.currentTarget.style.background = 'hsl(220 30% 13%)'; }}
+                            onMouseLeave={e => { e.currentTarget.style.color = 'hsl(215 18% 55%)'; e.currentTarget.style.background = 'none'; }}
+                        >Docs</button>
                     </div>
 
-                    {/* Desktop CTA */}
-                    <div className="hidden md:flex items-center gap-2.5">
-                        <button
-                            onClick={() => navigate('/login')}
-                            className="btn btn-ghost text-[13px]"
-                            style={{ color: 'hsl(215 18% 55%)' }}
-                        >
-                            Login
-                        </button>
-                        <button
-                            onClick={() => navigate('/register')}
-                            className="btn btn-primary text-[13px]"
-                        >
-                            Comecar
-                            <ArrowRight size={14} />
-                        </button>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                        <button onClick={() => nav('/login')} className="btn btn-ghost" style={{ fontSize: 13, color: 'hsl(215 18% 55%)' }}>Login</button>
+                        <button onClick={() => nav('/register')} className="btn btn-primary" style={{ fontSize: 13, display: 'flex', alignItems: 'center', gap: 6 }}>Come\u00e7ar <ArrowRight size={14} /></button>
                     </div>
 
                     {/* Mobile hamburger */}
-                    <button
-                        className="md:hidden flex items-center justify-center w-10 h-10 rounded-lg border-none cursor-pointer"
-                        style={{ background: 'transparent', color: 'hsl(210 40% 96%)' }}
-                        onClick={() => setMobileOpen(!mobileOpen)}
+                    <button onClick={() => setOpen(!open)} style={{ display: 'none', background: 'none', border: 'none', color: 'hsl(210 40% 96%)', cursor: 'pointer', padding: 8 }}
+                        className="landing-mobile-btn"
                     >
-                        {mobileOpen ? <X size={20} /> : <Menu size={20} />}
+                        {open ? <X size={20} /> : <Menu size={20} />}
                     </button>
                 </div>
 
-                {/* Mobile menu */}
-                {mobileOpen && (
-                    <motion.div
-                        initial={{ opacity: 0, y: -8 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        className="md:hidden pb-4 flex flex-col gap-1"
-                    >
-                        {['features', 'pricing'].map((item) => (
-                            <button
-                                key={item}
-                                onClick={() => scrollTo(item)}
-                                className="px-4 py-3 rounded-lg text-sm font-medium text-left border-none cursor-pointer transition-colors"
-                                style={{
-                                    color: 'hsl(215 18% 55%)',
-                                    background: 'transparent',
-                                }}
-                            >
-                                {item === 'features' ? 'Features' : 'Precos'}
-                            </button>
+                {open && (
+                    <div style={{ paddingBottom: 16, display: 'flex', flexDirection: 'column', gap: 4 }}>
+                        {['features', 'pricing'].map(item => (
+                            <button key={item} onClick={() => scrollTo(item)}
+                                style={{ padding: '12px 16px', borderRadius: 8, background: 'none', border: 'none', color: 'hsl(215 18% 55%)', fontSize: 14, fontWeight: 500, textAlign: 'left', cursor: 'pointer' }}
+                            >{item === 'features' ? 'Features' : 'Pre\u00e7os'}</button>
                         ))}
-                        <button
-                            onClick={() => { setMobileOpen(false); navigate('/docs'); }}
-                            className="px-4 py-3 rounded-lg text-sm font-medium text-left border-none cursor-pointer"
-                            style={{ color: 'hsl(215 18% 55%)', background: 'transparent' }}
-                        >
-                            Docs
-                        </button>
-                        <div className="h-px my-2" style={{ background: 'hsl(220 25% 14%)' }} />
-                        <button
-                            onClick={() => { setMobileOpen(false); navigate('/login'); }}
-                            className="btn btn-secondary w-full text-sm"
-                        >
-                            Login
-                        </button>
-                        <button
-                            onClick={() => { setMobileOpen(false); navigate('/register'); }}
-                            className="btn btn-primary w-full text-sm"
-                        >
-                            Comecar agora
-                            <ArrowRight size={14} />
-                        </button>
-                    </motion.div>
+                        <button onClick={() => { setOpen(false); nav('/docs'); }} style={{ padding: '12px 16px', borderRadius: 8, background: 'none', border: 'none', color: 'hsl(215 18% 55%)', fontSize: 14, fontWeight: 500, textAlign: 'left', cursor: 'pointer' }}>Docs</button>
+                        <button onClick={() => { setOpen(false); nav('/login'); }} className="btn btn-secondary" style={{ fontSize: 14 }}>Login</button>
+                        <button onClick={() => { setOpen(false); nav('/register'); }} className="btn btn-primary" style={{ fontSize: 14 }}>Come\u00e7ar agora <ArrowRight size={14} /></button>
+                    </div>
                 )}
             </div>
         </nav>
     );
 }
 
-// ------------------------------------------------------------------ //
-// HERO SECTION                                                        //
-// ------------------------------------------------------------------ //
-function HeroSection() {
-    const navigate = useNavigate();
-    const { scrollY } = useScroll();
-    const orbY1 = useTransform(scrollY, [0, 600], [0, -120]);
-    const orbY2 = useTransform(scrollY, [0, 600], [0, -80]);
-    const orbScale = useTransform(scrollY, [0, 600], [1, 0.85]);
-
+function Hero() {
+    const nav = useNavigate();
     return (
-        <section className="relative overflow-hidden pt-28 pb-20 sm:pt-36 sm:pb-28 px-4 sm:px-6">
-            {/* Background orbs */}
-            <motion.div
-                style={{ y: orbY1, scale: orbScale }}
-                className="absolute pointer-events-none"
-                aria-hidden
-            >
-                <div
-                    className="absolute rounded-full"
-                    style={{
-                        top: '-10%', left: '15%',
-                        width: 600, height: 600,
-                        background: 'radial-gradient(circle, hsl(142 76% 36% / 0.12) 0%, transparent 65%)',
-                        filter: 'blur(100px)',
-                    }}
-                />
-            </motion.div>
-            <motion.div
-                style={{ y: orbY2, scale: orbScale }}
-                className="absolute pointer-events-none inset-0"
-                aria-hidden
-            >
-                <div
-                    className="absolute rounded-full"
-                    style={{
-                        bottom: '5%', right: '10%',
-                        width: 500, height: 500,
-                        background: 'radial-gradient(circle, hsl(217 91% 60% / 0.08) 0%, transparent 65%)',
-                        filter: 'blur(80px)',
-                    }}
-                />
-            </motion.div>
+        <section style={{ position: 'relative', overflow: 'hidden', padding: '120px 24px 80px', textAlign: 'center' }}>
+            <div style={{ position: 'absolute', top: '-10%', left: '15%', width: 600, height: 600, borderRadius: '50%', background: 'radial-gradient(circle, hsl(142 76% 36% / 0.12) 0%, transparent 65%)', filter: 'blur(100px)', pointerEvents: 'none' }} />
+            <div style={{ position: 'absolute', bottom: '5%', right: '10%', width: 500, height: 500, borderRadius: '50%', background: 'radial-gradient(circle, hsl(217 91% 60% / 0.08) 0%, transparent 65%)', filter: 'blur(80px)', pointerEvents: 'none' }} />
 
-            {/* Grid overlay */}
-            <div
-                className="absolute inset-0 pointer-events-none"
-                style={{
-                    opacity: 0.03,
-                    backgroundImage: 'linear-gradient(hsl(0 0% 100% / 0.06) 1px, transparent 1px), linear-gradient(90deg, hsl(0 0% 100% / 0.06) 1px, transparent 1px)',
-                    backgroundSize: '64px 64px',
-                }}
-                aria-hidden
-            />
-
-            <div className="relative mx-auto max-w-4xl text-center">
-                <motion.div
-                    variants={fadeUp}
-                    initial="hidden"
-                    animate="visible"
-                >
-                    {/* Badge */}
-                    <div
-                        className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-semibold mb-8"
-                        style={{
-                            background: 'hsl(142 76% 36% / 0.1)',
-                            border: '1px solid hsl(142 76% 36% / 0.2)',
-                            color: 'hsl(142 76% 45%)',
-                        }}
-                    >
-                        <div
-                            className="w-1.5 h-1.5 rounded-full"
-                            style={{
-                                background: 'hsl(142 76% 36%)',
-                                animation: 'dotPulse 2s ease-in-out infinite',
-                            }}
-                        />
+            <div style={{ position: 'relative', maxWidth: 768, margin: '0 auto' }}>
+                <motion.div variants={fadeUp} initial="hidden" animate="visible">
+                    <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '6px 16px', borderRadius: 999, fontSize: 12, fontWeight: 600, marginBottom: 32, background: 'hsl(142 76% 36% / 0.1)', border: '1px solid hsl(142 76% 36% / 0.2)', color: 'hsl(142 76% 45%)' }}>
+                        <div style={{ width: 6, height: 6, borderRadius: '50%', background: 'hsl(142 76% 36%)', animation: 'dotPulse 2s ease-in-out infinite' }} />
                         Gateway de pagamentos PIX
                     </div>
 
-                    {/* Headline */}
-                    <h1
-                        className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold leading-[1.08] tracking-[-0.04em] mb-6"
-                        style={{ color: 'hsl(210 40% 96%)' }}
-                    >
+                    <h1 style={{ fontSize: 48, fontWeight: 800, lineHeight: 1.08, letterSpacing: '-0.04em', marginBottom: 24, color: 'hsl(210 40% 96%)' }}>
                         Receba pagamentos PIX{' '}
-                        <span
-                            style={{
-                                background: 'linear-gradient(135deg, hsl(142 76% 40%), hsl(160 84% 42%))',
-                                WebkitBackgroundClip: 'text',
-                                backgroundClip: 'text',
-                                WebkitTextFillColor: 'transparent',
-                            }}
-                        >
+                        <span style={{ background: 'linear-gradient(135deg, hsl(142 76% 40%), hsl(160 84% 42%))', WebkitBackgroundClip: 'text', backgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
                             de forma simples
                         </span>
                     </h1>
 
-                    {/* Subtitle */}
-                    <p
-                        className="text-base sm:text-lg md:text-xl leading-relaxed max-w-2xl mx-auto mb-10"
-                        style={{ color: 'hsl(215 18% 50%)' }}
-                    >
-                        Plataforma completa para empresarios e desenvolvedores.
-                        PIX instantaneo, API REST, webhooks e saques automaticos.
-                        Integre em minutos, receba em segundos.
+                    <p style={{ fontSize: 18, lineHeight: 1.6, maxWidth: 640, margin: '0 auto 40px', color: 'hsl(215 18% 50%)' }}>
+                        Plataforma completa para empres\u00e1rios e desenvolvedores. PIX instant\u00e2neo, API REST, webhooks e saques autom\u00e1ticos. Integre em minutos, receba em segundos.
                     </p>
 
-                    {/* CTAs */}
-                    <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-12">
-                        <button
-                            onClick={() => navigate('/register')}
-                            className="btn btn-primary text-base px-8 h-12"
-                        >
-                            Comecar gratis
-                            <ArrowRight size={18} />
-                        </button>
-                        <button
-                            onClick={() => navigate('/docs')}
-                            className="btn btn-secondary text-base px-8 h-12"
-                            style={{
-                                background: 'hsl(220 30% 11%)',
-                                borderColor: 'hsl(220 25% 18%)',
-                                color: 'hsl(210 40% 80%)',
-                            }}
-                        >
-                            <Code2 size={16} />
-                            Ver documentacao
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12, marginBottom: 48, flexWrap: 'wrap' }}>
+                        <button onClick={() => nav('/register')} className="btn btn-primary" style={{ fontSize: 16, padding: '12px 32px', height: 48 }}>Come\u00e7ar gr\u00e1tis <ArrowRight size={18} /></button>
+                        <button onClick={() => nav('/docs')} className="btn btn-secondary" style={{ fontSize: 16, padding: '12px 32px', height: 48, background: 'hsl(220 30% 11%)', borderColor: 'hsl(220 25% 18%)', color: 'hsl(210 40% 80%)' }}>
+                            <Code2 size={16} /> Ver documenta\u00e7\u00e3o
                         </button>
                     </div>
 
-                    {/* Trust badges */}
-                    <motion.div
-                        variants={stagger}
-                        initial="hidden"
-                        animate="visible"
-                        className="flex flex-wrap items-center justify-center gap-x-6 gap-y-3"
-                    >
+                    <motion.div variants={stagger} initial="hidden" animate="visible" style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'center', gap: '12px 24px' }}>
                         {[
                             { icon: Lock, label: 'SSL / TLS' },
                             { icon: Shield, label: 'LGPD' },
                             { icon: Clock, label: '99.9% uptime' },
                         ].map(({ icon: Icon, label }) => (
-                            <motion.div
-                                key={label}
-                                variants={fadeUp}
-                                className="flex items-center gap-1.5 text-xs font-medium"
-                                style={{ color: 'hsl(215 18% 45%)' }}
-                            >
-                                <Icon
-                                    size={13}
-                                    style={{ color: 'hsl(142 76% 40%)' }}
-                                />
+                            <motion.div key={label} variants={fadeUp} style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, fontWeight: 500, color: 'hsl(215 18% 45%)' }}>
+                                <Icon size={13} style={{ color: 'hsl(142 76% 40%)' }} />
                                 {label}
                             </motion.div>
                         ))}
@@ -432,51 +162,18 @@ function HeroSection() {
     );
 }
 
-// ------------------------------------------------------------------ //
-// STATS BAR                                                           //
-// ------------------------------------------------------------------ //
 function StatsBar() {
     return (
-        <motion.section
-            variants={stagger}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: '-50px' }}
-            className="mx-auto max-w-5xl px-4 sm:px-6 mb-20 sm:mb-28"
-        >
-            <div
-                className="grid grid-cols-2 md:grid-cols-4 rounded-2xl overflow-hidden"
-                style={{
-                    background: 'hsl(var(--card))',
-                    border: '1px solid hsl(var(--border))',
-                }}
-            >
-                {STATS.map((stat, i) => (
-                    <motion.div
-                        key={stat.label}
-                        variants={fadeUp}
-                        className="flex flex-col items-center justify-center py-6 sm:py-8 px-4"
-                        style={{
-                            borderRight: i < STATS.length - 1 ? '1px solid hsl(var(--border))' : 'none',
-                        }}
-                    >
-                        <div
-                            className="text-2xl sm:text-3xl font-extrabold tracking-tight mb-1"
-                            style={{
-                                background: 'linear-gradient(135deg, hsl(142 76% 36%), hsl(160 84% 39%))',
-                                WebkitBackgroundClip: 'text',
-                                backgroundClip: 'text',
-                                WebkitTextFillColor: 'transparent',
-                            }}
-                        >
-                            {stat.value}
+        <motion.section variants={stagger} initial="hidden" whileInView="visible" viewport={{ once: true, margin: '-50px' }}
+            style={{ maxWidth: 960, margin: '0 auto 80px', padding: '0 24px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', borderRadius: 16, overflow: 'hidden', background: 'hsl(var(--card))', border: '1px solid hsl(var(--border))' }}>
+                {STATS.map((s, i) => (
+                    <motion.div key={s.label} variants={fadeUp}
+                        style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '24px 16px', borderRight: i < 3 ? '1px solid hsl(var(--border))' : 'none' }}>
+                        <div style={{ fontSize: 28, fontWeight: 800, letterSpacing: '-0.02em', marginBottom: 4, background: 'linear-gradient(135deg, hsl(142 76% 36%), hsl(160 84% 39%))', WebkitBackgroundClip: 'text', backgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+                            {s.value}
                         </div>
-                        <div
-                            className="text-xs font-medium"
-                            style={{ color: 'hsl(215 18% 50%)' }}
-                        >
-                            {stat.label}
-                        </div>
+                        <div style={{ fontSize: 12, fontWeight: 500, color: 'hsl(215 18% 50%)' }}>{s.label}</div>
                     </motion.div>
                 ))}
             </div>
@@ -484,92 +181,33 @@ function StatsBar() {
     );
 }
 
-// ------------------------------------------------------------------ //
-// FEATURES SECTION                                                    //
-// ------------------------------------------------------------------ //
-function FeaturesSection() {
+function Features() {
     return (
-        <section id="features" className="py-20 sm:py-28 px-4 sm:px-6">
-            <div className="mx-auto max-w-6xl">
-                {/* Section header */}
-                <motion.div
-                    variants={fadeUp}
-                    initial="hidden"
-                    whileInView="visible"
-                    viewport={{ once: true, margin: '-60px' }}
-                    className="text-center mb-14 sm:mb-18"
-                >
-                    <div
-                        className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold mb-5"
-                        style={{
-                            background: 'hsl(142 76% 36% / 0.08)',
-                            border: '1px solid hsl(142 76% 36% / 0.15)',
-                            color: 'hsl(142 76% 45%)',
-                        }}
-                    >
+        <section id="features" style={{ padding: '80px 24px' }}>
+            <div style={{ maxWidth: 1152, margin: '0 auto' }}>
+                <motion.div variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true }} style={{ textAlign: 'center', marginBottom: 56 }}>
+                    <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '4px 12px', borderRadius: 999, fontSize: 12, fontWeight: 600, marginBottom: 20, background: 'hsl(142 76% 36% / 0.08)', border: '1px solid hsl(142 76% 36% / 0.15)', color: 'hsl(142 76% 45%)' }}>
                         Funcionalidades
                     </div>
-                    <h2
-                        className="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-[-0.03em] mb-4"
-                        style={{ color: 'hsl(210 40% 96%)' }}
-                    >
-                        Tudo que voce precisa para{' '}
-                        <span
-                            style={{
-                                background: 'linear-gradient(135deg, hsl(142 76% 40%), hsl(160 84% 42%))',
-                                WebkitBackgroundClip: 'text',
-                                backgroundClip: 'text',
-                                WebkitTextFillColor: 'transparent',
-                            }}
-                        >
-                            receber PIX
-                        </span>
+                    <h2 style={{ fontSize: 40, fontWeight: 800, letterSpacing: '-0.03em', marginBottom: 16, color: 'hsl(210 40% 96%)' }}>
+                        Tudo que voc\u00ea precisa para{' '}
+                        <span style={{ background: 'linear-gradient(135deg, hsl(142 76% 40%), hsl(160 84% 42%))', WebkitBackgroundClip: 'text', backgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>receber PIX</span>
                     </h2>
-                    <p
-                        className="text-base sm:text-lg max-w-xl mx-auto leading-relaxed"
-                        style={{ color: 'hsl(215 18% 50%)' }}
-                    >
-                        Infraestrutura completa de pagamentos com foco em simplicidade, velocidade e seguranca.
+                    <p style={{ fontSize: 16, maxWidth: 540, margin: '0 auto', lineHeight: 1.6, color: 'hsl(215 18% 50%)' }}>
+                        Infraestrutura completa de pagamentos com foco em simplicidade, velocidade e seguran\u00e7a.
                     </p>
                 </motion.div>
 
-                {/* Feature grid */}
-                <motion.div
-                    variants={stagger}
-                    initial="hidden"
-                    whileInView="visible"
-                    viewport={{ once: true, margin: '-80px' }}
-                    className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5"
-                >
-                    {FEATURES.map((feature) => (
-                        <motion.div
-                            key={feature.title}
-                            variants={fadeUp}
-                            className="card card-glow p-6 sm:p-7 flex flex-col gap-4"
-                            style={{ background: 'hsl(var(--card))' }}
-                        >
-                            <div
-                                className="w-11 h-11 rounded-xl flex items-center justify-center"
-                                style={{
-                                    background: `hsl(${feature.color} / 0.12)`,
-                                    color: `hsl(${feature.color})`,
-                                }}
-                            >
-                                <feature.icon size={20} />
+                <motion.div variants={stagger} initial="hidden" whileInView="visible" viewport={{ once: true }}
+                    style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 16 }}>
+                    {FEATURES.map(f => (
+                        <motion.div key={f.title} variants={fadeUp} className="card card-glow" style={{ padding: 28, display: 'flex', flexDirection: 'column', gap: 16, background: 'hsl(var(--card))' }}>
+                            <div style={{ width: 44, height: 44, borderRadius: 12, background: `hsl(${f.color} / 0.12)`, color: `hsl(${f.color})`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                <f.icon size={20} />
                             </div>
                             <div>
-                                <h3
-                                    className="text-base font-bold mb-1.5"
-                                    style={{ color: 'hsl(210 40% 96%)' }}
-                                >
-                                    {feature.title}
-                                </h3>
-                                <p
-                                    className="text-sm leading-relaxed"
-                                    style={{ color: 'hsl(215 18% 50%)' }}
-                                >
-                                    {feature.description}
-                                </p>
+                                <h3 style={{ fontSize: 15, fontWeight: 700, marginBottom: 6, color: 'hsl(210 40% 96%)' }}>{f.title}</h3>
+                                <p style={{ fontSize: 13, lineHeight: 1.6, color: 'hsl(215 18% 50%)' }}>{f.desc}</p>
                             </div>
                         </motion.div>
                     ))}
@@ -579,270 +217,84 @@ function FeaturesSection() {
     );
 }
 
-// ------------------------------------------------------------------ //
-// HOW IT WORKS                                                        //
-// ------------------------------------------------------------------ //
-function HowItWorksSection() {
-    const navigate = useNavigate();
-
+function HowItWorks() {
+    const nav = useNavigate();
     return (
-        <section className="py-20 sm:py-28 px-4 sm:px-6">
-            <div className="mx-auto max-w-5xl">
-                {/* Section header */}
-                <motion.div
-                    variants={fadeUp}
-                    initial="hidden"
-                    whileInView="visible"
-                    viewport={{ once: true, margin: '-60px' }}
-                    className="text-center mb-14 sm:mb-18"
-                >
-                    <div
-                        className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold mb-5"
-                        style={{
-                            background: 'hsl(217 91% 60% / 0.08)',
-                            border: '1px solid hsl(217 91% 60% / 0.15)',
-                            color: 'hsl(217 91% 60%)',
-                        }}
-                    >
+        <section style={{ padding: '80px 24px' }}>
+            <div style={{ maxWidth: 960, margin: '0 auto' }}>
+                <motion.div variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true }} style={{ textAlign: 'center', marginBottom: 56 }}>
+                    <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '4px 12px', borderRadius: 999, fontSize: 12, fontWeight: 600, marginBottom: 20, background: 'hsl(217 91% 60% / 0.08)', border: '1px solid hsl(217 91% 60% / 0.15)', color: 'hsl(217 91% 60%)' }}>
                         Como funciona
                     </div>
-                    <h2
-                        className="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-[-0.03em] mb-4"
-                        style={{ color: 'hsl(210 40% 96%)' }}
-                    >
-                        Tres passos para{' '}
-                        <span
-                            style={{
-                                background: 'linear-gradient(135deg, hsl(217 91% 60%), hsl(262 83% 58%))',
-                                WebkitBackgroundClip: 'text',
-                                backgroundClip: 'text',
-                                WebkitTextFillColor: 'transparent',
-                            }}
-                        >
-                            comecar
-                        </span>
+                    <h2 style={{ fontSize: 40, fontWeight: 800, letterSpacing: '-0.03em', color: 'hsl(210 40% 96%)' }}>
+                        Tr\u00eas passos para{' '}
+                        <span style={{ background: 'linear-gradient(135deg, hsl(217 91% 60%), hsl(262 83% 58%))', WebkitBackgroundClip: 'text', backgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>come\u00e7ar</span>
                     </h2>
                 </motion.div>
 
-                {/* Steps */}
-                <motion.div
-                    variants={stagger}
-                    initial="hidden"
-                    whileInView="visible"
-                    viewport={{ once: true, margin: '-80px' }}
-                    className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8"
-                >
-                    {STEPS.map((step, i) => (
-                        <motion.div
-                            key={step.number}
-                            variants={scaleIn}
-                            className="relative flex flex-col items-center text-center"
-                        >
-                            {/* Connector line (desktop) */}
-                            {i < STEPS.length - 1 && (
-                                <div
-                                    className="hidden md:block absolute top-12 left-[calc(50%+52px)] w-[calc(100%-104px)] h-px"
-                                    style={{
-                                        background: 'linear-gradient(90deg, hsl(142 76% 36% / 0.3), hsl(142 76% 36% / 0.08))',
-                                    }}
-                                />
-                            )}
-
-                            {/* Number badge */}
-                            <div
-                                className="w-24 h-24 rounded-2xl flex items-center justify-center mb-5 relative"
-                                style={{
-                                    background: 'linear-gradient(135deg, hsl(142 76% 36% / 0.1), hsl(142 71% 45% / 0.05))',
-                                    border: '1px solid hsl(142 76% 36% / 0.15)',
-                                }}
-                            >
-                                <step.icon
-                                    size={28}
-                                    style={{ color: 'hsl(142 76% 40%)' }}
-                                />
-                                <div
-                                    className="absolute -top-2 -right-2 w-8 h-8 rounded-lg flex items-center justify-center text-xs font-extrabold text-white"
-                                    style={{
-                                        background: 'linear-gradient(135deg, hsl(142 76% 36%), hsl(142 71% 45%))',
-                                        boxShadow: '0 4px 12px hsl(142 76% 36% / 0.3)',
-                                    }}
-                                >
-                                    {step.number}
+                <motion.div variants={stagger} initial="hidden" whileInView="visible" viewport={{ once: true }}
+                    style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: 32 }}>
+                    {STEPS.map(s => (
+                        <motion.div key={s.num} variants={scaleIn} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
+                            <div style={{ width: 96, height: 96, borderRadius: 16, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 20, position: 'relative', background: 'linear-gradient(135deg, hsl(142 76% 36% / 0.1), hsl(142 71% 45% / 0.05))', border: '1px solid hsl(142 76% 36% / 0.15)' }}>
+                                <s.icon size={28} style={{ color: 'hsl(142 76% 40%)' }} />
+                                <div style={{ position: 'absolute', top: -8, right: -8, width: 32, height: 32, borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 800, color: '#fff', background: 'linear-gradient(135deg, hsl(142 76% 36%), hsl(142 71% 45%))', boxShadow: '0 4px 12px hsl(142 76% 36% / 0.3)' }}>
+                                    {s.num}
                                 </div>
                             </div>
-
-                            <h3
-                                className="text-lg font-bold mb-2"
-                                style={{ color: 'hsl(210 40% 96%)' }}
-                            >
-                                {step.title}
-                            </h3>
-                            <p
-                                className="text-sm leading-relaxed max-w-xs"
-                                style={{ color: 'hsl(215 18% 50%)' }}
-                            >
-                                {step.description}
-                            </p>
+                            <h3 style={{ fontSize: 16, fontWeight: 700, marginBottom: 8, color: 'hsl(210 40% 96%)' }}>{s.title}</h3>
+                            <p style={{ fontSize: 13, lineHeight: 1.6, maxWidth: 280, color: 'hsl(215 18% 50%)' }}>{s.desc}</p>
                         </motion.div>
                     ))}
                 </motion.div>
 
-                {/* CTA under steps */}
-                <motion.div
-                    variants={fadeUp}
-                    initial="hidden"
-                    whileInView="visible"
-                    viewport={{ once: true, margin: '-40px' }}
-                    className="flex justify-center mt-12"
-                >
-                    <button
-                        onClick={() => navigate('/register')}
-                        className="btn btn-primary text-sm px-7 h-11"
-                    >
-                        Comecar agora
-                        <ArrowRight size={16} />
-                    </button>
+                <motion.div variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true }} style={{ display: 'flex', justifyContent: 'center', marginTop: 48 }}>
+                    <button onClick={() => nav('/register')} className="btn btn-primary" style={{ fontSize: 14, padding: '10px 28px', height: 44 }}>Come\u00e7ar agora <ArrowRight size={16} /></button>
                 </motion.div>
             </div>
         </section>
     );
 }
 
-// ------------------------------------------------------------------ //
-// PRICING SECTION                                                     //
-// ------------------------------------------------------------------ //
-function PricingSection() {
-    const navigate = useNavigate();
-
+function Pricing() {
+    const nav = useNavigate();
     return (
-        <section id="pricing" className="py-20 sm:py-28 px-4 sm:px-6">
-            <div className="mx-auto max-w-3xl">
-                {/* Section header */}
-                <motion.div
-                    variants={fadeUp}
-                    initial="hidden"
-                    whileInView="visible"
-                    viewport={{ once: true, margin: '-60px' }}
-                    className="text-center mb-14"
-                >
-                    <div
-                        className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold mb-5"
-                        style={{
-                            background: 'hsl(262 83% 58% / 0.08)',
-                            border: '1px solid hsl(262 83% 58% / 0.15)',
-                            color: 'hsl(262 83% 58%)',
-                        }}
-                    >
-                        Precos
+        <section id="pricing" style={{ padding: '80px 24px' }}>
+            <div style={{ maxWidth: 720, margin: '0 auto' }}>
+                <motion.div variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true }} style={{ textAlign: 'center', marginBottom: 56 }}>
+                    <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '4px 12px', borderRadius: 999, fontSize: 12, fontWeight: 600, marginBottom: 20, background: 'hsl(262 83% 58% / 0.08)', border: '1px solid hsl(262 83% 58% / 0.15)', color: 'hsl(262 83% 58%)' }}>
+                        Pre\u00e7os
                     </div>
-                    <h2
-                        className="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-[-0.03em] mb-4"
-                        style={{ color: 'hsl(210 40% 96%)' }}
-                    >
+                    <h2 style={{ fontSize: 40, fontWeight: 800, letterSpacing: '-0.03em', marginBottom: 16, color: 'hsl(210 40% 96%)' }}>
                         Simples e{' '}
-                        <span
-                            style={{
-                                background: 'linear-gradient(135deg, hsl(262 83% 58%), hsl(217 91% 60%))',
-                                WebkitBackgroundClip: 'text',
-                                backgroundClip: 'text',
-                                WebkitTextFillColor: 'transparent',
-                            }}
-                        >
-                            transparente
-                        </span>
+                        <span style={{ background: 'linear-gradient(135deg, hsl(262 83% 58%), hsl(217 91% 60%))', WebkitBackgroundClip: 'text', backgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>transparente</span>
                     </h2>
-                    <p
-                        className="text-base sm:text-lg max-w-lg mx-auto leading-relaxed"
-                        style={{ color: 'hsl(215 18% 50%)' }}
-                    >
-                        Sem mensalidade. Pague apenas por transacao processada.
+                    <p style={{ fontSize: 16, maxWidth: 480, margin: '0 auto', lineHeight: 1.6, color: 'hsl(215 18% 50%)' }}>
+                        Sem mensalidade. Pague apenas por transa\u00e7\u00e3o processada.
                     </p>
                 </motion.div>
 
-                {/* Pricing card */}
-                <motion.div
-                    variants={scaleIn}
-                    initial="hidden"
-                    whileInView="visible"
-                    viewport={{ once: true, margin: '-60px' }}
-                    className="relative"
-                >
-                    {/* Glow behind card */}
-                    <div
-                        className="absolute inset-0 -m-3 rounded-3xl opacity-40 pointer-events-none"
-                        style={{
-                            background: 'radial-gradient(ellipse at 50% 0%, hsl(142 76% 36% / 0.15), transparent 70%)',
-                            filter: 'blur(40px)',
-                        }}
-                    />
-
-                    <div
-                        className="relative rounded-2xl p-8 sm:p-10"
-                        style={{
-                            background: 'hsl(var(--card))',
-                            border: '1px solid hsl(142 76% 36% / 0.2)',
-                            boxShadow: '0 0 40px hsl(142 76% 36% / 0.06), 0 8px 40px rgb(0 0 0 / 0.12)',
-                        }}
-                    >
-                        {/* Plan header */}
-                        <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-8">
+                <motion.div variants={scaleIn} initial="hidden" whileInView="visible" viewport={{ once: true }} style={{ position: 'relative' }}>
+                    <div style={{ position: 'absolute', inset: -12, borderRadius: 24, opacity: 0.4, pointerEvents: 'none', background: 'radial-gradient(ellipse at 50% 0%, hsl(142 76% 36% / 0.15), transparent 70%)', filter: 'blur(40px)' }} />
+                    <div style={{ position: 'relative', borderRadius: 16, padding: 40, background: 'hsl(var(--card))', border: '1px solid hsl(142 76% 36% / 0.2)', boxShadow: '0 0 40px hsl(142 76% 36% / 0.06), 0 8px 40px rgb(0 0 0 / 0.12)' }}>
+                        <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 16, marginBottom: 32, flexWrap: 'wrap' }}>
                             <div>
-                                <div
-                                    className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold mb-3"
-                                    style={{
-                                        background: 'linear-gradient(135deg, hsl(142 76% 36%), hsl(142 71% 45%))',
-                                        color: '#fff',
-                                    }}
-                                >
+                                <div style={{ display: 'inline-flex', padding: '4px 12px', borderRadius: 999, fontSize: 12, fontWeight: 700, marginBottom: 12, background: 'linear-gradient(135deg, hsl(142 76% 36%), hsl(142 71% 45%))', color: '#fff' }}>
                                     Plataforma
                                 </div>
-                                <div className="flex items-baseline gap-2">
-                                    <span
-                                        className="text-4xl sm:text-5xl font-extrabold tracking-tight"
-                                        style={{ color: 'hsl(210 40% 96%)' }}
-                                    >
-                                        2.5%
-                                    </span>
-                                    <span
-                                        className="text-base font-medium"
-                                        style={{ color: 'hsl(215 18% 50%)' }}
-                                    >
-                                        por transacao
-                                    </span>
+                                <div style={{ display: 'flex', alignItems: 'baseline', gap: 8 }}>
+                                    <span style={{ fontSize: 48, fontWeight: 800, letterSpacing: '-0.02em', color: 'hsl(210 40% 96%)' }}>2.5%</span>
+                                    <span style={{ fontSize: 16, fontWeight: 500, color: 'hsl(215 18% 50%)' }}>por transa\u00e7\u00e3o</span>
                                 </div>
                             </div>
-                            <button
-                                onClick={() => navigate('/register')}
-                                className="btn btn-primary text-sm px-7 h-11 self-start sm:self-auto"
-                            >
-                                Comecar agora
-                                <ArrowRight size={16} />
-                            </button>
+                            <button onClick={() => nav('/register')} className="btn btn-primary" style={{ fontSize: 14, padding: '10px 28px', height: 44 }}>Come\u00e7ar agora <ArrowRight size={16} /></button>
                         </div>
-
-                        {/* Divider */}
-                        <div
-                            className="h-px mb-8"
-                            style={{ background: 'hsl(var(--border))' }}
-                        />
-
-                        {/* Features list */}
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            {PRICING_FEATURES.map((feat) => (
-                                <div
-                                    key={feat}
-                                    className="flex items-center gap-3"
-                                >
-                                    <CheckCircle
-                                        size={16}
-                                        style={{ color: 'hsl(142 76% 40%)', flexShrink: 0 }}
-                                    />
-                                    <span
-                                        className="text-sm font-medium"
-                                        style={{ color: 'hsl(210 40% 80%)' }}
-                                    >
-                                        {feat}
-                                    </span>
+                        <div style={{ height: 1, marginBottom: 32, background: 'hsl(var(--border))' }} />
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 16 }}>
+                            {PRICING.map(f => (
+                                <div key={f} style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                                    <CheckCircle size={16} style={{ color: 'hsl(142 76% 40%)', flexShrink: 0 }} />
+                                    <span style={{ fontSize: 14, fontWeight: 500, color: 'hsl(210 40% 80%)' }}>{f}</span>
                                 </div>
                             ))}
                         </div>
@@ -853,79 +305,23 @@ function PricingSection() {
     );
 }
 
-// ------------------------------------------------------------------ //
-// CTA SECTION                                                         //
-// ------------------------------------------------------------------ //
-function CtaSection() {
-    const navigate = useNavigate();
-
+function CTA() {
+    const nav = useNavigate();
     return (
-        <section className="py-20 sm:py-28 px-4 sm:px-6">
-            <motion.div
-                variants={scaleIn}
-                initial="hidden"
-                whileInView="visible"
-                viewport={{ once: true, margin: '-60px' }}
-                className="relative mx-auto max-w-4xl"
-            >
-                {/* Glow */}
-                <div
-                    className="absolute inset-0 -m-6 rounded-3xl pointer-events-none"
-                    style={{
-                        background: 'radial-gradient(ellipse at 50% 50%, hsl(142 76% 36% / 0.12), transparent 70%)',
-                        filter: 'blur(60px)',
-                    }}
-                />
-
-                <div
-                    className="relative rounded-2xl p-10 sm:p-14 text-center overflow-hidden"
-                    style={{
-                        background: 'linear-gradient(135deg, hsl(224 45% 6%), hsl(224 40% 8%))',
-                        border: '1px solid hsl(142 76% 36% / 0.15)',
-                    }}
-                >
-                    {/* Grid overlay */}
-                    <div
-                        className="absolute inset-0 pointer-events-none"
-                        style={{
-                            opacity: 0.04,
-                            backgroundImage: 'linear-gradient(hsl(0 0% 100% / 0.06) 1px, transparent 1px), linear-gradient(90deg, hsl(0 0% 100% / 0.06) 1px, transparent 1px)',
-                            backgroundSize: '48px 48px',
-                        }}
-                        aria-hidden
-                    />
-
-                    <div className="relative">
-                        <h2
-                            className="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-[-0.03em] mb-4"
-                            style={{ color: 'hsl(210 40% 96%)' }}
-                        >
+        <section style={{ padding: '80px 24px' }}>
+            <motion.div variants={scaleIn} initial="hidden" whileInView="visible" viewport={{ once: true }} style={{ position: 'relative', maxWidth: 800, margin: '0 auto' }}>
+                <div style={{ position: 'absolute', inset: -24, borderRadius: 24, pointerEvents: 'none', background: 'radial-gradient(ellipse at 50% 50%, hsl(142 76% 36% / 0.12), transparent 70%)', filter: 'blur(60px)' }} />
+                <div style={{ position: 'relative', borderRadius: 16, padding: '56px 40px', textAlign: 'center', overflow: 'hidden', background: 'linear-gradient(135deg, hsl(224 45% 6%), hsl(224 40% 8%))', border: '1px solid hsl(142 76% 36% / 0.15)' }}>
+                    <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', opacity: 0.04, backgroundImage: 'linear-gradient(hsl(0 0% 100% / 0.06) 1px, transparent 1px), linear-gradient(90deg, hsl(0 0% 100% / 0.06) 1px, transparent 1px)', backgroundSize: '48px 48px' }} />
+                    <div style={{ position: 'relative' }}>
+                        <h2 style={{ fontSize: 40, fontWeight: 800, letterSpacing: '-0.03em', marginBottom: 16, color: 'hsl(210 40% 96%)' }}>
                             Pronto para{' '}
-                            <span
-                                style={{
-                                    background: 'linear-gradient(135deg, hsl(142 76% 40%), hsl(160 84% 42%))',
-                                    WebkitBackgroundClip: 'text',
-                                    backgroundClip: 'text',
-                                    WebkitTextFillColor: 'transparent',
-                                }}
-                            >
-                                receber PIX
-                            </span>
-                            ?
+                            <span style={{ background: 'linear-gradient(135deg, hsl(142 76% 40%), hsl(160 84% 42%))', WebkitBackgroundClip: 'text', backgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>receber PIX</span>?
                         </h2>
-                        <p
-                            className="text-base sm:text-lg max-w-lg mx-auto leading-relaxed mb-8"
-                            style={{ color: 'hsl(215 18% 50%)' }}
-                        >
+                        <p style={{ fontSize: 16, maxWidth: 480, margin: '0 auto 32px', lineHeight: 1.6, color: 'hsl(215 18% 50%)' }}>
                             Crie sua conta gratuita e comece a receber pagamentos em menos de 5 minutos.
                         </p>
-                        <button
-                            onClick={() => navigate('/register')}
-                            className="btn btn-primary text-base px-10 h-12"
-                        >
-                            Comecar agora
-                            <ArrowRight size={18} />
-                        </button>
+                        <button onClick={() => nav('/register')} className="btn btn-primary" style={{ fontSize: 16, padding: '12px 40px', height: 48 }}>Come\u00e7ar agora <ArrowRight size={18} /></button>
                     </div>
                 </div>
             </motion.div>
@@ -933,141 +329,61 @@ function CtaSection() {
     );
 }
 
-// ------------------------------------------------------------------ //
-// FOOTER                                                              //
-// ------------------------------------------------------------------ //
 function Footer() {
-    const navigate = useNavigate();
-
-    const footerLinks = {
-        Produto: [
-            { label: 'Features', action: () => document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' }) },
-            { label: 'Precos', action: () => document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' }) },
-            { label: 'Documentacao', action: () => navigate('/docs') },
-            { label: 'Status', action: () => {} },
-        ],
-        Empresa: [
-            { label: 'Sobre', action: () => {} },
-            { label: 'Blog', action: () => {} },
-            { label: 'Contato', action: () => {} },
-            { label: 'Carreiras', action: () => {} },
-        ],
-        Legal: [
-            { label: 'Termos de uso', action: () => {} },
-            { label: 'Politica de privacidade', action: () => {} },
-            { label: 'LGPD', action: () => {} },
-        ],
-    };
-
+    const nav = useNavigate();
     return (
-        <footer
-            className="px-4 sm:px-6 pt-16 pb-8"
-            style={{
-                borderTop: '1px solid hsl(var(--border))',
-            }}
-        >
-            <div className="mx-auto max-w-6xl">
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-10 mb-14">
-                    {/* Brand column */}
-                    <div className="col-span-2 sm:col-span-1">
-                        <div className="flex items-center gap-2.5 mb-4">
-                            <div
-                                className="flex items-center justify-center rounded-xl font-extrabold text-white text-sm"
-                                style={{
-                                    width: 30, height: 30,
-                                    background: 'linear-gradient(135deg, hsl(142 76% 36%), hsl(142 71% 45%))',
-                                }}
-                            >
-                                F
-                            </div>
-                            <span
-                                className="text-sm font-bold tracking-tight"
-                                style={{ color: 'hsl(210 40% 90%)' }}
-                            >
-                                FlowinPay
-                            </span>
+        <footer style={{ padding: '64px 24px 32px', borderTop: '1px solid hsl(var(--border))' }}>
+            <div style={{ maxWidth: 1152, margin: '0 auto' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: 40, marginBottom: 56 }}>
+                    <div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
+                            <div style={{ width: 30, height: 30, borderRadius: 10, background: 'linear-gradient(135deg, hsl(142 76% 36%), hsl(142 71% 45%))', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 800, fontSize: 12 }}>F</div>
+                            <span style={{ fontSize: 14, fontWeight: 700, color: 'hsl(210 40% 90%)' }}>FlowinPay</span>
                         </div>
-                        <p
-                            className="text-xs leading-relaxed max-w-[200px]"
-                            style={{ color: 'hsl(215 18% 45%)' }}
-                        >
-                            Gateway de pagamentos PIX para empresarios e desenvolvedores brasileiros.
+                        <p style={{ fontSize: 12, lineHeight: 1.6, maxWidth: 200, color: 'hsl(215 18% 45%)' }}>
+                            Gateway de pagamentos PIX para empres\u00e1rios e desenvolvedores brasileiros.
                         </p>
                     </div>
-
-                    {/* Link columns */}
-                    {Object.entries(footerLinks).map(([title, links]) => (
-                        <div key={title}>
-                            <h4
-                                className="text-xs font-bold uppercase tracking-wider mb-4"
-                                style={{ color: 'hsl(210 40% 80%)' }}
-                            >
-                                {title}
-                            </h4>
-                            <ul className="flex flex-col gap-2.5 list-none p-0 m-0">
-                                {links.map((link) => (
-                                    <li key={link.label}>
-                                        <button
-                                            onClick={link.action}
-                                            className="text-xs font-medium border-none cursor-pointer p-0 bg-transparent transition-colors"
-                                            style={{ color: 'hsl(215 18% 45%)' }}
-                                            onMouseEnter={(e) => { e.currentTarget.style.color = 'hsl(210 40% 80%)'; }}
-                                            onMouseLeave={(e) => { e.currentTarget.style.color = 'hsl(215 18% 45%)'; }}
-                                        >
-                                            {link.label}
-                                        </button>
+                    {[
+                        { title: 'Produto', links: ['Features', 'Pre\u00e7os', 'Documenta\u00e7\u00e3o'] },
+                        { title: 'Empresa', links: ['Sobre', 'Blog', 'Contato'] },
+                        { title: 'Legal', links: ['Termos de uso', 'Privacidade', 'LGPD'] },
+                    ].map(col => (
+                        <div key={col.title}>
+                            <h4 style={{ fontSize: 12, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 16, color: 'hsl(210 40% 80%)' }}>{col.title}</h4>
+                            <ul style={{ display: 'flex', flexDirection: 'column', gap: 10, listStyle: 'none', padding: 0, margin: 0 }}>
+                                {col.links.map(l => (
+                                    <li key={l}>
+                                        <button onClick={() => { if (l === 'Features') document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' }); else if (l === 'Pre\u00e7os') document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' }); else if (l === 'Documenta\u00e7\u00e3o') nav('/docs'); }}
+                                            style={{ fontSize: 12, fontWeight: 500, background: 'none', border: 'none', cursor: 'pointer', color: 'hsl(215 18% 45%)', padding: 0 }}
+                                            onMouseEnter={e => e.currentTarget.style.color = 'hsl(210 40% 80%)'}
+                                            onMouseLeave={e => e.currentTarget.style.color = 'hsl(215 18% 45%)'}
+                                        >{l}</button>
                                     </li>
                                 ))}
                             </ul>
                         </div>
                     ))}
                 </div>
-
-                {/* Bottom bar */}
-                <div
-                    className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-6"
-                    style={{ borderTop: '1px solid hsl(var(--border))' }}
-                >
-                    <p
-                        className="text-xs"
-                        style={{ color: 'hsl(215 18% 40%)' }}
-                    >
-                        2026 FlowinPay. Todos os direitos reservados.
-                    </p>
-                    <div className="flex items-center gap-4">
-                        <Globe size={14} style={{ color: 'hsl(215 18% 40%)' }} />
-                        <span
-                            className="text-xs"
-                            style={{ color: 'hsl(215 18% 40%)' }}
-                        >
-                            Brasil
-                        </span>
-                    </div>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingTop: 24, borderTop: '1px solid hsl(var(--border))', flexWrap: 'wrap', gap: 12 }}>
+                    <p style={{ fontSize: 12, color: 'hsl(215 18% 40%)' }}>\u00a9 2026 FlowinPay. Todos os direitos reservados.</p>
+                    <span style={{ fontSize: 12, color: 'hsl(215 18% 40%)' }}>Brasil</span>
                 </div>
             </div>
         </footer>
     );
 }
 
-// ------------------------------------------------------------------ //
-// MAIN LANDING COMPONENT                                              //
-// ------------------------------------------------------------------ //
 export default function Landing() {
     return (
-        <div
-            className="min-h-screen"
-            style={{
-                background: 'hsl(var(--background))',
-                color: 'hsl(var(--foreground))',
-            }}
-        >
+        <div style={{ minHeight: '100vh', background: 'hsl(var(--background))', color: 'hsl(var(--foreground))' }}>
             <Navbar />
-            <HeroSection />
+            <Hero />
             <StatsBar />
-            <FeaturesSection />
-            <HowItWorksSection />
-            <PricingSection />
-            <CtaSection />
+            <Features />
+            <HowItWorks />
+            <Pricing />
+            <CTA />
             <Footer />
         </div>
     );

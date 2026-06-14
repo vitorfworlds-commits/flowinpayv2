@@ -8,9 +8,11 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class KycDocument extends Model
 {
     protected $fillable = [
-        'user_id', 'document_type', 'file_path', 'original_name',
-        'mime_type', 'file_size', 'status', 'reviewed_by',
-        'rejection_reason', 'reviewed_at',
+        'user_id',
+        'rg_frente_path', 'rg_frente_name',
+        'rg_verso_path', 'rg_verso_name',
+        'selfie_path', 'selfie_name',
+        'status', 'reviewed_by', 'rejection_reason', 'reviewed_at',
     ];
 
     public function user(): BelongsTo
@@ -23,18 +25,12 @@ class KycDocument extends Model
         return $this->belongsTo(User::class, 'reviewed_by');
     }
 
-    public function isPending(): bool
-    {
-        return $this->status === 'pending';
-    }
+    public function isPending(): bool { return $this->status === 'pending'; }
+    public function isApproved(): bool { return $this->status === 'approved'; }
+    public function isRejected(): bool { return $this->status === 'rejected'; }
 
-    public function isApproved(): bool
+    public function isComplete(): bool
     {
-        return $this->status === 'approved';
-    }
-
-    public function isRejected(): bool
-    {
-        return $this->status === 'rejected';
+        return $this->rg_frente_path && $this->rg_verso_path && $this->selfie_path;
     }
 }

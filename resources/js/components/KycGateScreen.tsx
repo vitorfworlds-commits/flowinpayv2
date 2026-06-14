@@ -44,16 +44,21 @@ export default function KycGateScreen({ status, onStatusChange }: Props) {
             toast.error('Envie todos os 3 documentos');
             return;
         }
+        for (const doc of REQUIRED_DOCS) {
+            const file = files[doc.type];
+            if (file && file.size > 5 * 1024 * 1024) {
+                toast.error(`${doc.label}: máx 5MB`);
+                return;
+            }
+        }
         setUploading(true);
         try {
+            const form = new FormData();
             for (const doc of REQUIRED_DOCS) {
                 const file = files[doc.type];
-                if (!file) continue;
-                const form = new FormData();
-                form.append('document_type', doc.type);
-                form.append('file', file);
-                await api.post('/kyc', form, { headers: { 'Content-Type': 'multipart/form-data' } });
+                if (file) form.append(doc.type, file);
             }
+            await api.post('/kyc', form, { headers: { 'Content-Type': 'multipart/form-data' } });
             toast.success('Documentos enviados! Aguarde a análise.');
             onStatusChange('pending');
         } catch (err: any) {

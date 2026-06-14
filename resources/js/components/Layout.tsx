@@ -48,14 +48,15 @@ export default function Layout() {
 
     useEffect(() => {
         api.get('/kyc').then(res => {
-            const docs = res.data.documents || [];
-            const approved = docs.some((d: any) => d.status === 'approved');
-            if (approved) {
+            const doc = res.data.document;
+            if (doc?.status === 'approved') {
                 setKycStatus('approved');
+            } else if (doc?.status === 'pending') {
+                setKycStatus('pending');
+            } else if (doc?.status === 'rejected') {
+                setKycStatus('rejected');
             } else {
-                const pending = docs.some((d: any) => d.status === 'pending');
-                const rejected = docs.some((d: any) => d.status === 'rejected');
-                setKycStatus(pending ? 'pending' : rejected ? 'rejected' : 'not_submitted');
+                setKycStatus('not_submitted');
             }
         }).catch(() => setKycStatus('not_submitted')).finally(() => setKycLoading(false));
     }, []);

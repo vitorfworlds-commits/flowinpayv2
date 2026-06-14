@@ -11,70 +11,69 @@ use Illuminate\Support\Facades\Storage;
 
 class KycController extends Controller
 {
-    private const ALLOWED_TYPES = ['rg_frente', 'rg_verso', 'selfie'];
     private const ALLOWED_MIMES = ['image/jpeg', 'image/png', 'application/pdf'];
     private const MAX_SIZE = 5 * 1024 * 1024; // 5MB
 
     public function index(Request $request): JsonResponse
     {
-        $documents = $request->user()
+        $document = $request->user()
             ->kycDocuments()
-            ->orderBy('created_at', 'desc')
-            ->get();
+            ->latest()
+            ->first();
 
-        return response()->json(['documents' => $documents]);
+        return response()->json(['document' => $document]);
     }
 
     public function store(Request $request): JsonResponse
     {
-        $validated = $request->validate([
-            'document_type' => 'required|string|in:' . implode(',', self::ALLOWED_TYPES),
-            'file' => 'required|file|max:' . (self::MAX_SIZE / 1024),
+        $request->validate([
+            'rg_frente' => 'required|file|max:' . (self::MAX_SIZE / 1024),
+            'rg_verso' => 'required|file|max:' . (self::MAX_SIZE / 1024),
+            'selfie' => 'required|file|max:' . (self::MAX_SIZE / 1024),
         ]);
-
-        $file = $request->file('file');
-        $mime = $file->getMimeType();
-
-        if (!in_array($mime, self::ALLOWED_MIMES)) {
-            return response()->json([
-                'message' => 'Tipo de arquivo não permitido. Envie JPG, PNG ou PDF.',
-            ], 422);
-        }
 
         $user = $request->user();
 
-        // Verificar se já tem documento pendente do mesmo tipo
+        // Verificar se já tem submission pendente
         $existing = KycDocument::where('user_id', $user->id)
-            ->where('document_type', $validated['document_type'])
             ->where('status', 'pending')
             ->first();
 
         if ($existing) {
             return response()->json([
-                'message' => 'Você já enviou um documento deste tipo que está em análise.',
+                'message' => 'Você já enviou documentos que estão em análise.',
             ], 422);
         }
 
-        $path = $file->store("kyc/{$user->id}", 'local');
+        // Validar MIME types
+        foreach (['rg_frente', 'rg_verso', 'selfie'] as $field) {
+            $file = $request->file($field);
+            if (!in_array($file->getMimeType(), self::ALLOWED_MIMES)) {
+                return response()->json([
+                    'message' => ucfirst(str_replace('_', ' ', $field)) . ': tipo não permitido. Envie JPG, PNG ou PDF.',
+                ], 422);
+            }
+        }
 
-        $document = KycDocument::create([
-            'user_id' => $user->id,
-            'document_type' => $validated['document_type'],
-            'file_path' => $path,
-            'original_name' => $file->getClientOriginalName(),
-            'mime_type' => $mime,
-            'file_size' => $file->getSize(),
-            'status' => 'pending',
-        ]);
+        $userId = $user->id;
+        $data = ['user_id' => $userId, 'status' => 'pending'];
 
-        Log::info('KYC document uploaded', [
-            'user_id' => $user->id,
-            'document_type' => $validated['document_type'],
+        foreach (['rg_frente', 'rg_verso', 'selfie'] as $field) {
+            $file = $request->file($field);
+            $path = $file->store("kyc/{$userId}", 'local');
+            $data["{$field}_path"] = $path;
+            $data["{$field}_name"] = $file->getClientOriginalName();
+        }
+
+        $document = KycDocument::create($data);
+
+        Log::info('KYC documents uploaded', [
+            'user_id' => $userId,
             'document_id' => $document->id,
         ]);
 
         return response()->json([
-            'message' => 'Documento enviado com sucesso. Entraremos em contato após a análise.',
+            'message' => 'Documentos enviados com sucesso. Entraremos em contato após a análise.',
             'document' => $document,
         ], 201);
     }
@@ -96,13 +95,19 @@ class KycController extends Controller
 
         if (!$document->isPending()) {
             return response()->json([
-                'message' => 'Não é possível remover um documento já analisado.',
+                'message' => 'Não é possível remover documentos já analisados.',
             ], 422);
         }
 
-        Storage::disk('local')->delete($document->file_path);
+        // Deletar arquivos do storage
+        foreach (['rg_frente_path', 'rg_verso_path', 'selfie_path'] as $field) {
+            if ($document->$field) {
+                Storage::disk('local')->delete($document->$field);
+            }
+        }
+
         $document->delete();
 
-        return response()->json(['message' => 'Documento removido com sucesso.']);
+        return response()->json(['message' => 'Documentos removidos com sucesso.']);
     }
 }

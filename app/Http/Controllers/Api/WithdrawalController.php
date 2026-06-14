@@ -127,10 +127,15 @@ class WithdrawalController extends Controller
 
             $transferData = $response['transaction'] ?? $response;
             $withdrawal->update([
-                'status' => 'processing',
+                'status' => 'completed',
                 'transaction_id' => $transferData['correlationID'] ?? $transferData['transactionID'] ?? null,
                 'acquirer_response' => json_encode($transferData),
+                'processed_at' => now(),
             ]);
+
+            // Liberar saldo bloqueado (o dinheiro saiu de verdade)
+            $user = $request->user()->fresh();
+            $user->decrement('balance_blocked', $withdrawal->value);
 
             AuditLog::log('withdrawal_requested', $withdrawal, null, [
                 'value' => $value,

@@ -24,6 +24,11 @@ import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
 import '../css/app.css';
 
+// Registrar service worker globalmente (PWA + Push)
+if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/sw.js').catch(() => {});
+}
+
 const root = createRoot(document.getElementById('app')!);
 
 root.render(

@@ -17,6 +17,10 @@ import Account from './pages/Account';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import AdminUsers from './pages/admin/AdminUsers';
 import AdminUserDetail from './pages/admin/AdminUserDetail';
+import AdminCharges from './pages/admin/AdminCharges';
+import AdminDisputes from './pages/admin/AdminDisputes';
+import AdminKyc from './pages/admin/AdminKyc';
+import AdminAuditLogs from './pages/admin/AdminAuditLogs';
 import ChargeDetail from './pages/ChargeDetail';
 import Pay from './pages/Pay';
 import Docs from './pages/Docs';
@@ -67,6 +71,10 @@ root.render(
                     <Route path="/admin" element={<AdminDashboard />} />
                     <Route path="/admin/users" element={<AdminUsers />} />
                     <Route path="/admin/users/:id" element={<AdminUserDetail />} />
+                    <Route path="/admin/charges" element={<AdminCharges />} />
+                    <Route path="/admin/disputes" element={<AdminDisputes />} />
+                    <Route path="/admin/kyc" element={<AdminKyc />} />
+                    <Route path="/admin/audit-logs" element={<AdminAuditLogs />} />
                 </Route>
                 <Route path="*" element={<Navigate to="/dashboard" replace />} />
             </Routes>

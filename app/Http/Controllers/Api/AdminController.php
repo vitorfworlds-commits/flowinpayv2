@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\AuditLog;
 use App\Models\Charge;
+use App\Models\Dispute;
+use App\Models\KycDocument;
 use App\Models\Transaction;
 use App\Models\User;
 use App\Models\Withdrawal;
@@ -310,5 +312,146 @@ class AdminController extends Controller
         }
 
         return response()->json($query->paginate($validated['per_page'] ?? 20));
+    }
+
+    // ========== Charges (all users) ==========
+
+    public function allCharges(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'search' => 'nullable|string|max:100',
+            'status' => 'nullable|string|in:active,paid,expired,cancelled',
+            'acquirer_id' => 'nullable|integer|exists:acquirers,id',
+            'user_id' => 'nullable|integer|exists:users,id',
+            'start_date' => 'nullable|date',
+            'end_date' => 'nullable|date',
+            'per_page' => 'nullable|integer|min:1|max:100',
+        ]);
+
+        $query = Charge::with(['user:id,name,email', 'acquirer:id,name'])->orderBy('created_at', 'desc');
+
+        if (!empty($validated['search'])) {
+            $s = '%' . addcslashes($validated['search'], '%_') . '%';
+            $query->where(fn ($q) => $q->where('description', 'like', $s)->orWhere('correlation_id', 'like', $s));
+        }
+        if (!empty($validated['status'])) {
+            $query->where('status', $validated['status']);
+        }
+        if (!empty($validated['acquirer_id'])) {
+            $query->where('acquirer_id', $validated['acquirer_id']);
+        }
+        if (!empty($validated['user_id'])) {
+            $query->where('user_id', $validated['user_id']);
+        }
+        if (!empty($validated['start_date'])) {
+            $query->whereDate('created_at', '>=', $validated['start_date']);
+        }
+        if (!empty($validated['end_date'])) {
+            $query->whereDate('created_at', '<=', $validated['end_date']);
+        }
+
+        return response()->json($query->paginate($validated['per_page'] ?? 20));
+    }
+
+    // ========== Disputes (all users) ==========
+
+    public function allDisputes(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'search' => 'nullable|string|max:100',
+            'status' => 'nullable|string|in:open,under_review,accepted,expired,cancelled,won,lost',
+            'type' => 'nullable|string|in:chargeback,refund,fraud',
+            'user_id' => 'nullable|integer|exists:users,id',
+            'start_date' => 'nullable|date',
+            'end_date' => 'nullable|date',
+            'per_page' => 'nullable|integer|min:1|max:100',
+        ]);
+
+        $query = Dispute::with(['user:id,name,email', 'charge:id,correlation_id,value'])->orderBy('created_at', 'desc');
+
+        if (!empty($validated['search'])) {
+            $s = '%' . addcslashes($validated['search'], '%_') . '%';
+            $query->where(fn ($q) => $q->where('external_id', 'like', $s)->orWhere('reason', 'like', $s));
+        }
+        if (!empty($validated['status'])) {
+            $query->where('status', $validated['status']);
+        }
+        if (!empty($validated['type'])) {
+            $query->where('type', $validated['type']);
+        }
+        if (!empty($validated['user_id'])) {
+            $query->where('user_id', $validated['user_id']);
+        }
+        if (!empty($validated['start_date'])) {
+            $query->whereDate('created_at', '>=', $validated['start_date']);
+        }
+        if (!empty($validated['end_date'])) {
+            $query->whereDate('created_at', '<=', $validated['end_date']);
+        }
+
+        return response()->json($query->paginate($validated['per_page'] ?? 20));
+    }
+
+    // ========== KYC Review ==========
+
+    public function kycPending(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'status' => 'nullable|string|in:pending,approved,rejected',
+            'per_page' => 'nullable|integer|min:1|max:100',
+        ]);
+
+        $query = KycDocument::with('user:id,name,email,tax_id,phone')
+            ->orderBy('created_at', 'desc');
+
+        if (!empty($validated['status'])) {
+            $query->where('status', $validated['status']);
+        }
+
+        return response()->json($query->paginate($validated['per_page'] ?? 20));
+    }
+
+    public function kycApprove(string $id): JsonResponse
+    {
+        $doc = KycDocument::findOrFail($id);
+
+        if ($doc->status === 'approved') {
+            return response()->json(['message' => 'KYC já aprovado'], 422);
+        }
+
+        $doc->update([
+            'status' => 'approved',
+            'reviewed_by' => request()->user()->id,
+            'reviewed_at' => now(),
+            'rejection_reason' => null,
+        ]);
+
+        AuditLog::log('kyc_approved', $doc->user, ['status' => $doc->getOriginal('status')], ['status' => 'approved']);
+
+        return response()->json(['document' => $doc->fresh(), 'message' => 'KYC aprovado com sucesso']);
+    }
+
+    public function kycReject(Request $request, string $id): JsonResponse
+    {
+        $validated = $request->validate([
+            'reason' => 'required|string|max:500',
+        ]);
+
+        $doc = KycDocument::findOrFail($id);
+
+        if ($doc->status === 'rejected') {
+            return response()->json(['message' => 'KYC já rejeitado'], 422);
+        }
+
+        $doc->update([
+            'status' => 'rejected',
+            'reviewed_by' => request()->user()->id,
+            'reviewed_at' => now(),
+            'rejection_reason' => $validated['reason'],
+        ]);
+
+        AuditLog::log('kyc_rejected', $doc->user, ['status' => $doc->getOriginal('status')], ['status' => 'rejected', 'reason' => $validated['reason']]);
+
+        return response()->json(['document' => $doc->fresh(), 'message' => 'KYC rejeitado']);
     }
 }

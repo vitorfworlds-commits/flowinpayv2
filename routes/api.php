@@ -97,6 +97,11 @@ Route::middleware(['auth:sanctum', 'throttle:120,1'])->group(function () {
         Route::get('/users/{id}/transactions', [AdminController::class, 'userTransactions']);
         Route::get('/users/{id}/withdrawals', [AdminController::class, 'userWithdrawals']);
         Route::get('/audit-logs', [AdminController::class, 'auditLogs']);
+        Route::get('/charges', [AdminController::class, 'allCharges']);
+        Route::get('/disputes', [AdminController::class, 'allDisputes']);
+        Route::get('/kyc', [AdminController::class, 'kycPending']);
+        Route::post('/kyc/{id}/approve', [AdminController::class, 'kycApprove']);
+        Route::post('/kyc/{id}/reject', [AdminController::class, 'kycReject']);
     });
 
     // Acquirers (adquirentes)

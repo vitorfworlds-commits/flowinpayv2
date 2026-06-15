@@ -1308,8 +1308,8 @@ body {
   white-space: nowrap;
 }
 .sidebar-logo-text-img {
-  height: 36px;
-  max-width: 180px;
+  height: 45px;
+  max-width: 450px;
   object-fit: contain;
   object-position: left center;
 }

@@ -5,13 +5,15 @@ import {
     Wallet, TrendingUp, Calendar, Clock, CreditCard,
     ArrowUpRight, ArrowDownRight, ArrowRight,
     Plus, ArrowDownToLine, Eye, BarChart3, Activity,
-    Zap, Shield, Globe, RefreshCw, ExternalLink, CheckCircle, AlertTriangle, Link2, KeyRound, BookOpen
+    Zap, Shield, Globe, RefreshCw, ExternalLink, CheckCircle, AlertTriangle, Link2, KeyRound, BookOpen,
+    Bell, X as XIcon
 } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import api from '@/lib/api';
 import { formatBRL, formatDateTime } from '@/lib/format';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import { useAuthStore } from '@/store/useAuthStore';
+import { usePushNotifications } from '@/hooks/usePushNotifications';
 import toast from 'react-hot-toast';
 
 // ------------------------------------------------------------------ //
@@ -180,6 +182,9 @@ function buildChartData(transactions: Transaction[], period: string) {
 export default function Dashboard() {
     const navigate = useNavigate();
     const { user } = useAuthStore();
+    const { supported, subscribed, loading: pushLoading, subscribe } = usePushNotifications();
+    const [pushDismissed, setPushDismissed] = useState(() => localStorage.getItem('fp_push_dismissed') === 'true');
+    const showPushPrompt = supported && !subscribed && !pushDismissed;
     const [summary, setSummary] = useState<SummaryData | null>(null);
     const [balance, setBalance] = useState<BalanceData | null>(null);
     const [allTx, setAllTx] = useState<Transaction[]>([]);
@@ -255,6 +260,73 @@ export default function Dashboard() {
             className="w-full"
             style={{ display: 'flex', flexDirection: 'column', gap: 32 }}
         >
+            {/* PUSH NOTIFICATION PROMPT */}
+            {showPushPrompt && (
+                <motion.div
+                    initial={{ opacity: 0, y: -20, scale: 0.95 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: -20 }}
+                    style={{
+                        position: 'relative',
+                        background: 'linear-gradient(135deg, hsl(142 76% 36% / 0.12), hsl(142 76% 36% / 0.04))',
+                        border: '1px solid hsl(142 76% 36% / 0.2)',
+                        borderRadius: 14,
+                        padding: '16px 20px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 14,
+                        overflow: 'hidden',
+                    }}
+                >
+                    <div style={{
+                        width: 44, height: 44, borderRadius: 12, flexShrink: 0,
+                        background: 'hsl(142 76% 36% / 0.15)',
+                        color: 'hsl(142 76% 36%)',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    }}>
+                        <Bell size={22} />
+                    </div>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ fontWeight: 600, fontSize: 14, marginBottom: 2 }}>
+                            Ative as notificações
+                        </div>
+                        <div style={{ fontSize: 13, opacity: 0.7 }}>
+                            Receba alertas instantâneos quando seus pagamentos forem confirmados.
+                        </div>
+                    </div>
+                    <motion.button
+                        className="btn btn-primary"
+                        style={{ flexShrink: 0, fontSize: 13, padding: '8px 16px' }}
+                        whileHover={{ scale: 1.03 }}
+                        whileTap={{ scale: 0.97 }}
+                        disabled={pushLoading}
+                        onClick={async () => {
+                            await subscribe();
+                            toast.success('Notificações ativadas!');
+                        }}
+                    >
+                        {pushLoading ? 'Ativando...' : 'Ativar'}
+                    </motion.button>
+                    <button
+                        className="btn-icon"
+                        style={{ flexShrink: 0, opacity: 0.5 }}
+                        onClick={() => {
+                            localStorage.setItem('fp_push_dismissed', 'true');
+                            setPushDismissed(true);
+                        }}
+                        title="Dispensar"
+                    >
+                        <XIcon size={16} />
+                    </button>
+                    {/* Deco */}
+                    <div style={{
+                        position: 'absolute', right: -20, top: -20, width: 100, height: 100,
+                        background: 'radial-gradient(circle, hsl(142 76% 36% / 0.1), transparent 70%)',
+                        pointerEvents: 'none',
+                    }} />
+                </motion.div>
+            )}
+
             {/* HEADER RICH */}
             <div className="dashboard-header">
                 <div className="dashboard-header-top">

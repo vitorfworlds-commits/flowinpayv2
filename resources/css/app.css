@@ -1301,6 +1301,7 @@ body {
   object-fit: cover;
   display: block;
 }
+.dark .auth-logo img { content: url('/favdark.png'); }
 .sidebar-logo-text {
   font-weight: 700;
   font-size: 17px;
@@ -1308,8 +1309,8 @@ body {
   white-space: nowrap;
 }
 .sidebar-logo-text-img {
-  height: 55px;
-  max-width: 550px;
+  height: 60px;
+  max-width: 600px;
   object-fit: contain;
   object-position: left center;
 }

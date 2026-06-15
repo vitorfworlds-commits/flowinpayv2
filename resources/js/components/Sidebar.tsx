@@ -67,10 +67,10 @@ export default function Sidebar({ collapsed, onToggle, mobileOpen, onMobileToggl
         <aside className={`app-sidebar ${collapsed ? 'collapsed' : 'expanded'} ${mobileOpen ? 'mobile-open' : ''}`}>
             {/* Logo */}
             <div className="sidebar-logo">
-                <img src="/fav.png" alt="FlowinPay" className="sidebar-logo-img" />
+                <img src={theme === 'dark' ? '/favdark.png' : '/fav.png'} alt="FlowinPay" className="sidebar-logo-img" />
                 {!collapsed && (
                     <motion.img
-                        src="/logonome.png"
+                        src={theme === 'dark' ? '/logonomedark.png' : '/logonome.png'}
                         alt="FlowinPay"
                         className="sidebar-logo-text-img"
                         initial={{ opacity: 0, x: -8 }}

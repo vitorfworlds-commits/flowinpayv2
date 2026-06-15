@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import toast from 'react-hot-toast';
 import api from '@/lib/api';
 
 function urlBase64ToUint8Array(base64String: string): Uint8Array {
@@ -45,19 +46,24 @@ export function usePushNotifications() {
         }
     }, []);
 
-    const subscribe = useCallback(async () => {
-        if (!supported) return;
+    const subscribe = useCallback(async (): Promise<boolean> => {
+        if (!supported) return false;
         setLoading(true);
         try {
             // Get VAPID public key
             const { data } = await api.get('/notifications/vapid-key');
             const vapidKey = data.public_key;
 
+            if (!vapidKey) {
+                toast.error('Notificações não configuradas no servidor');
+                return false;
+            }
+
             // Request notification permission
             const permission = await Notification.requestPermission();
             if (permission !== 'granted') {
-                setLoading(false);
-                return;
+                toast.error('Permissão de notificação negada. Verifique as configurações do navegador.');
+                return false;
             }
 
             // Subscribe on browser
@@ -75,8 +81,11 @@ export function usePushNotifications() {
             });
 
             setSubscribed(true);
+            return true;
         } catch (err) {
             console.error('Push subscribe error:', err);
+            toast.error('Erro ao ativar notificações');
+            return false;
         } finally {
             setLoading(false);
         }

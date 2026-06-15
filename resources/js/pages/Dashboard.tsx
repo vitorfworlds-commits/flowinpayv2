@@ -301,8 +301,8 @@ export default function Dashboard() {
                         whileTap={{ scale: 0.97 }}
                         disabled={pushLoading}
                         onClick={async () => {
-                            await subscribe();
-                            toast.success('Notificações ativadas!');
+                            const success = await subscribe();
+                            if (success) toast.success('Notificações ativadas!');
                         }}
                     >
                         {pushLoading ? 'Ativando...' : 'Ativar'}

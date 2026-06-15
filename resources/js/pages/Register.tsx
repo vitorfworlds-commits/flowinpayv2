@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate, Navigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { User, Mail, Lock, Eye, EyeOff, ArrowRight, CheckCircle, Zap, TrendingUp, Globe } from 'lucide-react';
+import { User, Mail, Lock, Eye, EyeOff, ArrowRight, CheckCircle, Zap, TrendingUp, Globe, CreditCard } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useAuthStore } from '@/store/useAuthStore';
 
@@ -19,6 +19,7 @@ export default function Register() {
     const { register, isLoading, user, token } = useAuthStore();
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
+    const [taxId, setTaxId] = useState('');
     const [password, setPassword] = useState('');
     const [passwordConfirmation, setPasswordConfirmation] = useState('');
     const [showPassword, setShowPassword] = useState(false);
@@ -41,7 +42,7 @@ export default function Register() {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!name.trim() || !email.trim() || !password.trim()) {
+        if (!name.trim() || !email.trim() || !taxId.trim() || !password.trim()) {
             toast.error('Preencha todos os campos');
             return;
         }
@@ -57,6 +58,7 @@ export default function Register() {
             await register({
                 name: name.trim(),
                 email: email.trim(),
+                tax_id: taxId.replace(/\D/g, ''),
                 password,
                 password_confirmation: passwordConfirmation,
             });
@@ -184,6 +186,26 @@ export default function Register() {
                                         value={email}
                                         onChange={(e) => setEmail(e.target.value)}
                                         autoComplete="email"
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="input-group">
+                                <label className="input-label">CPF</label>
+                                <div className="auth-input-wrapper">
+                                    <CreditCard size={16} className="auth-input-icon" />
+                                    <input
+                                        type="text"
+                                        className="input"
+                                        style={{ paddingLeft: 40 }}
+                                        placeholder="000.000.000-00"
+                                        value={taxId}
+                                        onChange={(e) => {
+                                            const v = e.target.value.replace(/\D/g, '').slice(0, 11);
+                                            const f = v.length > 9 ? `${v.slice(0,3)}.${v.slice(3,6)}.${v.slice(6,9)}-${v.slice(9)}` : v.length > 6 ? `${v.slice(0,3)}.${v.slice(3,6)}.${v.slice(6)}` : v.length > 3 ? `${v.slice(0,3)}.${v.slice(3)}` : v;
+                                            setTaxId(f);
+                                        }}
+                                        autoComplete="off"
                                     />
                                 </div>
                             </div>

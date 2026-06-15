@@ -25,7 +25,7 @@ class AuthController extends Controller
             'email' => 'required|email|unique:users,email',
             'password' => ['required', 'confirmed', Password::min(8)],
             'phone' => 'nullable|string|max:20',
-            'tax_id' => 'nullable|string|max:20',
+            'tax_id' => 'required|string|max:20',
         ]);
 
         $validated['password'] = Hash::make($validated['password']);

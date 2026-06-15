@@ -19,7 +19,7 @@ interface AuthState {
     token: string | null;
     isLoading: boolean;
     login: (email: string, password: string) => Promise<void>;
-    register: (data: { name: string; email: string; password: string; password_confirmation: string }) => Promise<void>;
+    register: (data: { name: string; email: string; tax_id: string; password: string; password_confirmation: string }) => Promise<void>;
     logout: () => Promise<void>;
     fetchUser: () => Promise<void>;
     setToken: (token: string) => void;

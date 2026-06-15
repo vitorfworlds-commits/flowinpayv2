@@ -12,6 +12,7 @@ use App\Models\WebhookLog;
 use App\Services\DisputeEvidenceService;
 use App\Jobs\SendDisputeDossier;
 use App\Services\AcquirerFactory;
+use App\Services\PushNotificationService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -267,6 +268,27 @@ class WebhookController extends Controller
         // Evita segurar locks de banco enquanto espera o servidor do lojista.
         if ($charge) {
             app(WebhookCallbackService::class)->sendChargeCompleted($charge);
+
+            // Push notification para o dono da charge
+            try {
+                $pushService = app(PushNotificationService::class);
+                if ($pushService->isConfigured()) {
+                    $owner = \App\Models\User::find($charge->user_id);
+                    if ($owner) {
+                        $pushService->sendToUser(
+                            $owner,
+                            'Pagamento recebido!',
+                            'R$ ' . number_format($charge->value, 2, ',', '.') . ' recebido com sucesso.',
+                            '/dashboard'
+                        );
+                    }
+                }
+            } catch (\Throwable $e) {
+                Log::error('Push notification failed on charge.completed', [
+                    'charge_id' => $charge->id,
+                    'error' => $e->getMessage(),
+                ]);
+            }
         }
     }
 

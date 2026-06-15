@@ -8,6 +8,8 @@
 - [Saques](./saques.md): Solicitação de saque via PIX. Autenticação obrigatória.
 - [Webhooks](./webhooks.md): Como configurar e receber notificações de eventos.
 - [Guia Webhooks](./webhook-guide.md): Passo-a-passo para receber webhooks (PHP, Node.js, Python, Java, Go, C#, Ruby).
+- [Taxas](./taxas.md): Configuração de taxas ativa.
+- [Página de Pagamento](./pagina-pagamento.md): Página pública de pagamento PIX.
 - [Erros](./erros.md): Códigos de erro e como resolver.
 
 ## Exemplos
@@ -23,7 +25,7 @@
 | Formato | JSON |
 | Autenticação | API Key via header `X-Api-Key` |
 | Timeout Webhooks | 5 segundos |
-| Rate Limit | 120 req/min (padrão), 30/min (cobranças), 5/min (saques) |
+| Rate Limit | 60 req/min (API v1), 30/min (cobranças painel), 10/min (login) |
 
 ## Endpoints
 
@@ -62,14 +64,14 @@
 |---|---|---|
 | POST | `/api/v1/webhooks` | Registrar webhook |
 | GET | `/api/v1/webhooks` | Listar webhooks |
-| PUT | `/api/v1/webhooks/{id}` | Atualizar webhook |
 | DELETE | `/api/v1/webhooks/{id}` | Remover webhook |
-| POST | `/api/v1/webhooks/{id}/test` | Testar webhook |
+
+> **Nota:** Atualizar, testar e regenerar secret de webhooks estão disponíveis apenas no painel (autenticação Bearer Token).
 
 ### Integração
 | Método | Endpoint | Descrição |
 |---|---|---|
-| GET | `/api/v1/fees/current` | Configuração de taxas |
+| GET | `/api/v1/fees/current` | Configuração de taxas ativa (público, sem autenticação) |
 | GET | `/api/health` | Status da API (público) |
 
 ## Eventos de Webhook

@@ -142,10 +142,11 @@ curl -H "X-Api-Key: fpk_xxxx" "https://app.flowinpay.com.br/api/v1/balance"
 
 | Endpoint | Limite |
 |---|---|
+| API v1 (todas rotas) | 60 req/min |
 | Login/Registro | 10 req/min |
-| Cobranças | 30 req/min |
-| Saques | 5 req/min |
-| Outros | 120 req/min |
+| Cobranças (painel) | 30 req/min |
+| Página pública de pagamento | 30 req/min |
+| Webhook receiver (adquirente) | 100 req/min |
 
 **Solução:**
 - Aguarde `retry_after` segundos

@@ -85,3 +85,11 @@ GET /api/v1/transactions/{id}
   }
 }
 ```
+
+### Exemplo
+
+```bash
+curl -X GET "https://app.flowinpay.com.br/api/v1/transactions/150" \
+  -H "X-Api-Key: fpk_xxxx" \
+  -H "Accept: application/json"
+```

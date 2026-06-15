@@ -12,7 +12,7 @@ POST /api/v1/charges
 
 | Header | Valor |
 |---|---|
-| `X-Api-Key` | `fp_xxxx` |
+| `X-Api-Key` | `fpk_xxxx` |
 | `Content-Type` | `application/json` |
 | `Accept` | `application/json` |
 
@@ -34,7 +34,7 @@ POST /api/v1/charges
 
 ```bash
 curl -X POST "https://app.flowinpay.com.br/api/v1/charges" \
-  -H "X-Api-Key: fp_xxxx" \
+  -H "X-Api-Key: fpk_xxxx" \
   -H "Content-Type: application/json" \
   -d '{
     "value": 50.00,
@@ -60,6 +60,7 @@ curl -X POST "https://app.flowinpay.com.br/api/v1/charges" \
     "fee_value": "2.00",
     "status": "active",
     "br_code": "00020101021226580014br.gov.bcb.pix...",
+    "qr_code_image": "https://app.flowinpay.com.br/storage/qr/abc123.png",
     "payment_link_url": "https://app.flowinpay.com.br/pay/a1b2c3d4...",
     "expires_at": "2026-06-06T13:00:00Z"
   }

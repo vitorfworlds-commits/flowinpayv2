@@ -38,7 +38,7 @@ POST /api/v1/webhooks
 
 ```bash
 curl -X POST "https://app.flowinpay.com.br/api/v1/webhooks" \
-  -H "X-Api-Key: fp_xxxx" \
+  -H "X-Api-Key: fpk_xxxx" \
   -H "Content-Type: application/json" \
   -d '{
     "url": "https://seusite.com/webhook/flowinpay",
@@ -93,16 +93,7 @@ GET /api/v1/webhooks
 
 ## Atualizar Webhook
 
-```
-PUT /api/v1/webhooks/{id}
-```
-
-| Campo | Tipo | Descrição |
-|---|---|---|
-| `url` | string | Nova URL de destino |
-| `events` | array | Novos eventos |
-| `description` | string | Nova descrição |
-| `is_active` | boolean | Ativar/desativar |
+> **Disponível apenas no painel** (autenticação Bearer Token). Não disponível via API Key.
 
 ---
 
@@ -122,31 +113,13 @@ DELETE /api/v1/webhooks/{id}
 
 ## Regenerar Secret
 
-```
-POST /api/v1/webhooks/{id}/regenerate-secret
-```
-
-### Response (200)
-
-```json
-{
-  "message": "Secret regenerado!",
-  "webhook": {
-    "id": 1,
-    "secret": "whsec_novosecretxxxxx"
-  }
-}
-```
+> **Disponível apenas no painel** (autenticação Bearer Token). Não disponível via API Key.
 
 ---
 
 ## Testar Webhook
 
-```
-POST /api/v1/webhooks/{id}/test
-```
-
-Envia um payload de teste para a URL configurada.
+> **Disponível apenas no painel** (autenticação Bearer Token). Não disponível via API Key.
 
 ---
 
@@ -180,6 +153,66 @@ Quando um evento ocorre, a FlowinPay envia um POST para sua URL:
     "created_at": "2026-06-05T13:00:00Z"
   },
   "timestamp": "2026-06-05T14:30:00Z"
+}
+```
+
+### Payload — withdrawal.completed
+
+```json
+{
+  "event": "withdrawal.completed",
+  "withdrawal": {
+    "id": 15,
+    "value": "100.00",
+    "fee_value": "2.00",
+    "net_value": "98.00",
+    "pix_key": "12345678901",
+    "pix_key_type": "cpf",
+    "status": "completed",
+    "processed_at": "2026-06-05T15:30:00Z",
+    "created_at": "2026-06-05T15:00:00Z"
+  },
+  "timestamp": "2026-06-05T15:30:00Z"
+}
+```
+
+### Payload — withdrawal.failed
+
+```json
+{
+  "event": "withdrawal.failed",
+  "withdrawal": {
+    "id": 15,
+    "value": "100.00",
+    "fee_value": "2.00",
+    "net_value": "98.00",
+    "pix_key": "12345678901",
+    "pix_key_type": "cpf",
+    "status": "failed",
+    "description": "Chave PIX inválida",
+    "created_at": "2026-06-05T15:00:00Z"
+  },
+  "timestamp": "2026-06-05T15:05:00Z"
+}
+```
+
+### Payload — dispute.opened / dispute.accepted / dispute.rejected / dispute.cancelled
+
+```json
+{
+  "event": "dispute.opened",
+  "dispute": {
+    "id": 3,
+    "charge_id": 42,
+    "external_id": "dsp_woovi_abc123",
+    "type": "chargeback",
+    "status": "open",
+    "amount": "50.00",
+    "reason": "Cliente não reconheceu a compra",
+    "due_at": "2026-06-20T00:00:00Z",
+    "created_at": "2026-06-10T10:00:00Z"
+  },
+  "timestamp": "2026-06-10T10:00:00Z"
 }
 ```
 
@@ -254,7 +287,7 @@ Ao criar uma cobrança via API com `callbackUrl`, a FlowinPay cria automaticamen
 
 ```bash
 curl -X POST "https://app.flowinpay.com.br/api/v1/charges" \
-  -H "X-Api-Key: fp_xxxx" \
+  -H "X-Api-Key: fpk_xxxx" \
   -H "Content-Type: application/json" \
   -d '{
     "value": 50.00,

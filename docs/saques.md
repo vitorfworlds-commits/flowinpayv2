@@ -96,28 +96,6 @@ GET /api/v1/withdrawals
 | `failed` | Falha no processamento |
 | `cancelled` | Cancelado pelo usuário |
 
-> **Importante:** Saques só podem ser cancelados enquanto estiverem com status `pending`.
-
----
-
-## Cancelar Saque
-
-```
-POST /api/v1/withdrawals/{id}/cancel
-```
-
-### Response (200)
-
-```json
-{
-  "message": "Saque cancelado",
-  "withdrawal": {
-    "id": 15,
-    "status": "cancelled"
-  }
-}
-```
-
 ---
 
 ## Erros Comuns
@@ -127,4 +105,4 @@ POST /api/v1/withdrawals/{id}/cancel
 | 422 | Saldo insuficiente | Verifique o saldo antes de solicitar |
 | 422 | Valor mínimo R$10 | Aumente o valor do saque |
 | 422 | Chave PIX inválida | Verifique o tipo e formato da chave |
-| 429 | Rate limit (5/min) | Aguarde antes de tentar novamente |
+| 429 | Rate limit (60/min) | Aguarde antes de tentar novamente |

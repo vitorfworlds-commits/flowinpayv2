@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Menu, X, Shield, Upload, Clock, CheckCircle, AlertTriangle } from 'lucide-react';
 import Sidebar from './Sidebar';
 import KycGateScreen from './KycGateScreen';
+import InstallPwaBanner from './InstallPwaBanner';
 import { useAuthStore } from '@/store/useAuthStore';
 import api from '@/lib/api';
 import toast from 'react-hot-toast';
@@ -113,6 +114,8 @@ export default function Layout() {
                     <Outlet />
                 </motion.div>
             </main>
+
+            <InstallPwaBanner />
         </div>
     );
 }

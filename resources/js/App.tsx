@@ -14,12 +14,10 @@ import Disputes from './pages/Disputes';
 import Acquirers from './pages/Acquirers';
 import Fees from './pages/Fees';
 import Account from './pages/Account';
-import Kyc from './pages/Kyc';
 import ChargeDetail from './pages/ChargeDetail';
 import Pay from './pages/Pay';
 import Docs from './pages/Docs';
 import Landing from './pages/Landing';
-import Kyc from './pages/Kyc';
 import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
 import '../css/app.css';
@@ -63,8 +61,6 @@ root.render(
                     <Route path="/api-keys" element={<ApiKeys />} />
                     <Route path="/fees" element={<Fees />} />
                     <Route path="/account" element={<Account />} />
-                    <Route path="/kyc" element={<Kyc />} />
-                    <Route path="/kyc" element={<Kyc />} />
                 </Route>
                 <Route path="*" element={<Navigate to="/dashboard" replace />} />
             </Routes>

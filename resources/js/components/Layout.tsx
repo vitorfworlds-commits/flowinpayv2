@@ -1,8 +1,9 @@
 import { useState, useEffect, useRef } from 'react';
-import { Outlet, Navigate, useNavigate } from 'react-router-dom';
+import { Outlet, Navigate, useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Menu, X, Shield, Upload, Clock, CheckCircle, AlertTriangle } from 'lucide-react';
 import Sidebar from './Sidebar';
+import AdminSidebar from './AdminSidebar';
 import KycGateScreen from './KycGateScreen';
 import InstallPwaBanner from './InstallPwaBanner';
 import { useAuthStore } from '@/store/useAuthStore';
@@ -11,6 +12,8 @@ import toast from 'react-hot-toast';
 
 export default function Layout() {
     const { user, token } = useAuthStore();
+    const location = useLocation();
+    const isAdminRoute = location.pathname.startsWith('/admin') || location.pathname === '/fees';
     const [collapsed, setCollapsed] = useState(() => {
         return localStorage.getItem('fp_sidebar_collapsed') === 'true';
     });
@@ -97,12 +100,21 @@ export default function Layout() {
                 </button>
             </header>
 
-            <Sidebar
-                collapsed={collapsed}
-                onToggle={toggle}
-                mobileOpen={mobileOpen}
-                onMobileToggle={() => setMobileOpen((p) => !p)}
-            />
+            {isAdminRoute ? (
+                <AdminSidebar
+                    collapsed={collapsed}
+                    onToggle={toggle}
+                    mobileOpen={mobileOpen}
+                    onMobileToggle={() => setMobileOpen((p) => !p)}
+                />
+            ) : (
+                <Sidebar
+                    collapsed={collapsed}
+                    onToggle={toggle}
+                    mobileOpen={mobileOpen}
+                    onMobileToggle={() => setMobileOpen((p) => !p)}
+                />
+            )}
 
             <main className={`app-main ${collapsed ? 'sidebar-collapsed' : 'sidebar-expanded'}`}>
                 <motion.div

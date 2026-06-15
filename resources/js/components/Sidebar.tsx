@@ -14,9 +14,7 @@ import {
     Moon,
     ShieldAlert,
     Plug,
-    Users,
-    Shield,
-    ScrollText,
+    ShieldCheck,
 } from 'lucide-react';
 import { useAuthStore } from '@/store/useAuthStore';
 import { useTheme } from '@/components/ThemeProvider';
@@ -36,13 +34,7 @@ const navItems = [
     { to: '/disputes', icon: ShieldAlert, label: 'Contestações' },
     { to: '/acquirers', icon: Plug, label: 'Adquirentes' },
     { to: '/api-keys', icon: Key, label: 'API Keys' },
-    { to: '/admin', icon: LayoutDashboard, label: 'Admin', adminOnly: true },
-    { to: '/admin/users', icon: Users, label: 'Usuários', adminOnly: true },
-    { to: '/admin/charges', icon: Receipt, label: 'Cobranças', adminOnly: true },
-    { to: '/admin/disputes', icon: ShieldAlert, label: 'Contestações', adminOnly: true },
-    { to: '/admin/kyc', icon: Shield, label: 'KYC', adminOnly: true },
-    { to: '/admin/audit-logs', icon: ScrollText, label: 'Logs', adminOnly: true },
-    { to: '/fees', icon: Settings, label: 'Taxas', adminOnly: true },
+    { to: '/admin', icon: ShieldCheck, label: 'Painel Admin', adminOnly: true },
     { to: '/account', icon: Settings, label: 'Conta' },
 ];
 

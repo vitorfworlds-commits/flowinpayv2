@@ -1310,7 +1310,7 @@ body {
 }
 .sidebar-logo-text-img {
   height: 60px;
-  max-width: 180px;
+  max-width: 550px;
   object-fit: contain;
   object-position: left center;
 }

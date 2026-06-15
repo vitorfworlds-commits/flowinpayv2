@@ -202,7 +202,7 @@ body {
   overflow: hidden;
 }
 .app-sidebar.collapsed { width: 72px; }
-.app-sidebar.expanded { width: 340px; }
+.app-sidebar.expanded { width: 260px; }
 
 .app-main {
   min-height: 100vh;
@@ -225,7 +225,7 @@ body {
 }
 
 .app-main.sidebar-collapsed { margin-left: 72px; }
-.app-main.sidebar-expanded { margin-left: 340px; }
+.app-main.sidebar-expanded { margin-left: 260px; }
 
 /* ============================================================
    NAVIGATION
@@ -1294,9 +1294,9 @@ body {
   min-height: 64px;
 }
 .sidebar-logo-img {
-  width: 48px;
-  height: 48px;
-  border-radius: 12px;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
   flex-shrink: 0;
   object-fit: cover;
   display: block;
@@ -1308,8 +1308,8 @@ body {
   white-space: nowrap;
 }
 .sidebar-logo-text-img {
-  height: 40px;
-  width: 250px;
+  height: 36px;
+  width: auto;
   object-fit: contain;
   object-position: left center;
 }

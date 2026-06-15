@@ -23,6 +23,9 @@ Route::get('/health', HealthController::class);
 // Pagamento público — sem autenticação
 Route::get('/public/charge/{correlationId}', [PublicChargeController::class, 'show'])->middleware('throttle:30,1');
 
+// VAPID public key — precisa ser público pra push subscription
+Route::get('/notifications/vapid-key', [NotificationController::class, 'vapidPublicKey']);
+
 // Rotas públicas — rate limit mais restritivo
 Route::middleware('throttle:10,1')->group(function () {
     Route::post('/register', [AuthController::class, 'register']);
@@ -118,8 +121,7 @@ Route::middleware(['auth:sanctum', 'throttle:120,1'])->group(function () {
     Route::get('/kyc/{document}', [KycController::class, 'show']);
     Route::delete('/kyc/{document}', [KycController::class, 'destroy']);
 
-    // Push Notifications
-    Route::get('/notifications/vapid-key', [NotificationController::class, 'vapidPublicKey']);
+    // Push Notifications (vapid-key é pública, registrada acima)
     Route::get('/notifications/status', [NotificationController::class, 'status']);
     Route::post('/notifications/subscribe', [NotificationController::class, 'subscribe']);
     Route::post('/notifications/unsubscribe', [NotificationController::class, 'unsubscribe']);

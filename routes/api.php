@@ -14,6 +14,7 @@ use App\Http\Controllers\Api\WebhookConfigController;
 use App\Http\Controllers\Api\PublicChargeController;
 use App\Http\Controllers\Api\KycController;
 use App\Http\Controllers\Api\NotificationController;
+use App\Http\Controllers\Api\AdminController;
 use App\Http\Middleware\AdminMiddleware;
 use Illuminate\Support\Facades\Route;
 
@@ -81,6 +82,21 @@ Route::middleware(['auth:sanctum', 'throttle:120,1'])->group(function () {
         Route::post('/fees', [FeeConfigController::class, 'store']);
         Route::get('/fees/{id}', [FeeConfigController::class, 'show']);
         Route::put('/fees/{id}', [FeeConfigController::class, 'update']);
+    });
+
+    // Admin Panel (admin only)
+    Route::middleware(AdminMiddleware::class)->prefix('admin')->group(function () {
+        Route::get('/dashboard', [AdminController::class, 'dashboard']);
+        Route::get('/dashboard/chart', [AdminController::class, 'revenueChart']);
+        Route::get('/users', [AdminController::class, 'users']);
+        Route::get('/users/{id}', [AdminController::class, 'userDetail']);
+        Route::post('/users/{id}/block', [AdminController::class, 'blockUser']);
+        Route::post('/users/{id}/unblock', [AdminController::class, 'unblockUser']);
+        Route::post('/users/{id}/adjust-balance', [AdminController::class, 'adjustBalance']);
+        Route::get('/users/{id}/charges', [AdminController::class, 'userCharges']);
+        Route::get('/users/{id}/transactions', [AdminController::class, 'userTransactions']);
+        Route::get('/users/{id}/withdrawals', [AdminController::class, 'userWithdrawals']);
+        Route::get('/audit-logs', [AdminController::class, 'auditLogs']);
     });
 
     // Acquirers (adquirentes)

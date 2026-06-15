@@ -17,6 +17,7 @@ const STATUS_MAP: Record<string, { label: string; badgeClass: string }> = {
     expired: { label: 'Expirado', badgeClass: 'badge-muted' },
     draft: { label: 'Rascunho', badgeClass: 'badge-muted' },
     partial: { label: 'Parcial', badgeClass: 'badge-purple' },
+    blocked: { label: 'Bloqueado', badgeClass: 'badge-red' },
 };
 
 export default function StatusBadge({ status }: StatusBadgeProps) {

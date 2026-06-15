@@ -14,6 +14,9 @@ import Disputes from './pages/Disputes';
 import Acquirers from './pages/Acquirers';
 import Fees from './pages/Fees';
 import Account from './pages/Account';
+import AdminDashboard from './pages/admin/AdminDashboard';
+import AdminUsers from './pages/admin/AdminUsers';
+import AdminUserDetail from './pages/admin/AdminUserDetail';
 import ChargeDetail from './pages/ChargeDetail';
 import Pay from './pages/Pay';
 import Docs from './pages/Docs';
@@ -61,6 +64,9 @@ root.render(
                     <Route path="/api-keys" element={<ApiKeys />} />
                     <Route path="/fees" element={<Fees />} />
                     <Route path="/account" element={<Account />} />
+                    <Route path="/admin" element={<AdminDashboard />} />
+                    <Route path="/admin/users" element={<AdminUsers />} />
+                    <Route path="/admin/users/:id" element={<AdminUserDetail />} />
                 </Route>
                 <Route path="*" element={<Navigate to="/dashboard" replace />} />
             </Routes>

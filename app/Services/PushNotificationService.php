@@ -5,7 +5,6 @@ namespace App\Services;
 use App\Models\PushSubscription;
 use App\Models\User;
 use Illuminate\Support\Facades\Log;
-use GuzzleHttp\Client;
 use Minishlink\WebPush\WebPush;
 use Minishlink\WebPush\Subscription;
 
@@ -27,10 +26,9 @@ class PushNotificationService
                 ],
             ];
             // Force IPv4 — Apple push servers timeout on IPv6 from this VPS
-            $httpClient = new Client([
+            $this->webPush = new WebPush($auth, [], 30, [
                 'curl' => [CURLOPT_IPRESOLVE => CURL_IPRESOLVE_V4],
             ]);
-            $this->webPush = new WebPush($auth, [], $httpClient);
         }
     }
 

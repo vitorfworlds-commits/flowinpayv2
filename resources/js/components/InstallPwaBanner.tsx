@@ -1,25 +1,58 @@
 import { useState, useEffect } from 'react';
 import { Download, X } from 'lucide-react';
-import { useInstallPrompt } from '@/hooks/useInstallPrompt';
 
-function isIOS(): boolean {
-    return /iphone|ipad|ipod/i.test(navigator.userAgent);
+interface BeforeInstallPromptEvent extends Event {
+    prompt(): Promise<void>;
+    userChoice: Promise<{ outcome: 'accepted' | 'dismissed' }>;
 }
 
 function isStandalone(): boolean {
     return window.matchMedia('(display-mode: standalone)').matches || (window.navigator as any).standalone === true;
 }
 
+function isSafari(): boolean {
+    return /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+}
+
+function isIOS(): boolean {
+    return /iphone|ipad|ipod/i.test(navigator.userAgent);
+}
+
 export default function InstallPwaBanner() {
-    const { isInstallable, isInstalled, install } = useInstallPrompt();
+    const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
     const [dismissed, setDismissed] = useState(() => localStorage.getItem('fp_pwa_dismissed') === 'true');
-    const [ios] = useState(() => isIOS());
     const [standalone] = useState(() => isStandalone());
 
-    if (standalone || isInstalled || dismissed) return null;
+    useEffect(() => {
+        if (standalone) return;
 
-    // Android/Desktop: beforeinstallprompt fires
-    if (isInstallable) {
+        const handler = (e: Event) => {
+            e.preventDefault();
+            setDeferredPrompt(e as BeforeInstallPromptEvent);
+        };
+
+        window.addEventListener('beforeinstallprompt', handler);
+        window.addEventListener('appinstalled', () => setDeferredPrompt(null));
+
+        return () => window.removeEventListener('beforeinstallprompt', handler);
+    }, [standalone]);
+
+    if (standalone || dismissed) return null;
+
+    const dismiss = () => {
+        setDismissed(true);
+        localStorage.setItem('fp_pwa_dismissed', 'true');
+    };
+
+    const handleInstall = async () => {
+        if (!deferredPrompt) return;
+        deferredPrompt.prompt();
+        await deferredPrompt.userChoice;
+        setDeferredPrompt(null);
+    };
+
+    // Chrome/Edge/Android: tem beforeinstallprompt
+    if (deferredPrompt) {
         return (
             <div style={{
                 position: 'fixed', bottom: 16, left: 16, right: 16, zIndex: 9999,
@@ -34,13 +67,13 @@ export default function InstallPwaBanner() {
                     <div style={{ fontWeight: 600, fontSize: 14 }}>Instalar FlowinPay</div>
                     <div style={{ fontSize: 12, opacity: 0.9 }}>Acesso rápido pela tela inicial</div>
                 </div>
-                <button onClick={install} style={{
+                <button onClick={handleInstall} style={{
                     background: '#fff', color: 'hsl(142 76% 36%)', border: 'none',
                     borderRadius: 8, padding: '8px 16px', fontWeight: 600, fontSize: 13, cursor: 'pointer',
                 }}>
                     Instalar
                 </button>
-                <button onClick={() => { setDismissed(true); localStorage.setItem('fp_pwa_dismissed', 'true'); }} style={{
+                <button onClick={dismiss} style={{
                     background: 'none', border: 'none', color: '#fff', cursor: 'pointer', padding: 4,
                 }}>
                     <X size={18} />
@@ -49,8 +82,8 @@ export default function InstallPwaBanner() {
         );
     }
 
-    // iPhone/iPad: show manual instructions
-    if (ios) {
+    // Safari/iOS: instruções manuais
+    if (isSafari() || isIOS()) {
         return (
             <div style={{
                 position: 'fixed', bottom: 16, left: 16, right: 16, zIndex: 9999,
@@ -64,10 +97,10 @@ export default function InstallPwaBanner() {
                 <div style={{ flex: 1, color: '#fff' }}>
                     <div style={{ fontWeight: 600, fontSize: 14 }}>Instalar FlowinPay</div>
                     <div style={{ fontSize: 12, opacity: 0.9 }}>
-                        Toque em <span style={{ fontWeight: 700 }}>&#128228; Compartilhar</span> &rarr; <span style={{ fontWeight: 700 }}>Adicionar à Tela de Início</span>
+                        Toque em <span style={{ fontWeight: 700 }}>&#8593; Compartilhar</span> e depois <span style={{ fontWeight: 700 }}>"Adicionar à Tela de Início"</span>
                     </div>
                 </div>
-                <button onClick={() => { setDismissed(true); localStorage.setItem('fp_pwa_dismissed', 'true'); }} style={{
+                <button onClick={dismiss} style={{
                     background: 'none', border: 'none', color: '#fff', cursor: 'pointer', padding: 4,
                 }}>
                     <X size={18} />
@@ -76,5 +109,6 @@ export default function InstallPwaBanner() {
         );
     }
 
+    // Firefox, etc: sem prompt nativo — não mostra nada
     return null;
 }

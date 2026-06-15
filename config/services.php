@@ -41,4 +41,10 @@ return [
         'webhook_public_key' => env('WOOVI_PUBLIC_KEY_PEM'),
     ],
 
+    'vapid' => [
+        'public_key' => env('VAPID_PUBLIC_KEY'),
+        'private_key' => env('VAPID_PRIVATE_KEY'),
+        'subject' => env('VAPID_SUBJECT', 'mailto:contato@flowinpay.com.br'),
+    ],
+
 ];

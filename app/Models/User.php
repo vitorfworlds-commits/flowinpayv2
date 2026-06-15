@@ -74,6 +74,11 @@ class User extends Authenticatable
         return $this->hasMany(KycDocument::class);
     }
 
+    public function pushSubscriptions()
+    {
+        return $this->hasMany(PushSubscription::class);
+    }
+
     public function defaultAcquirer()
     {
         return $this->belongsTo(Acquirer::class, 'default_acquirer_id');

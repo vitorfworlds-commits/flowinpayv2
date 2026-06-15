@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\Charge;
 use App\Models\User;
 use App\Models\WebhookConfig;
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 

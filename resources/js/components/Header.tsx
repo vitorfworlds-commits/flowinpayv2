@@ -1,7 +1,8 @@
-import { Bell, Sun, Moon, Menu } from 'lucide-react';
+import { Bell, Sun, Moon, Menu, BellOff } from 'lucide-react';
 import { useTheme } from '@/components/ThemeProvider';
 import { useAuthStore } from '@/store/useAuthStore';
 import { formatBRL } from '@/lib/format';
+import { usePushNotifications } from '@/hooks/usePushNotifications';
 
 interface HeaderProps {
     title: string;
@@ -13,6 +14,7 @@ interface HeaderProps {
 export default function Header({ title, subtitle, onMobileMenuToggle, right }: HeaderProps) {
     const { theme, toggle } = useTheme();
     const { user } = useAuthStore();
+    const { supported, subscribed, loading, subscribe, unsubscribe } = usePushNotifications();
 
     const balance = parseFloat(user?.balance ?? '0');
 
@@ -43,9 +45,17 @@ export default function Header({ title, subtitle, onMobileMenuToggle, right }: H
                     </div>
                 )}
 
-                <button className="btn-icon" title="Notificações">
-                    <Bell size={18} />
-                </button>
+                {supported && (
+                    <button
+                        className="btn-icon"
+                        title={subscribed ? 'Notificações ativas — clique para desativar' : 'Ativar notificações'}
+                        onClick={subscribed ? unsubscribe : subscribe}
+                        disabled={loading}
+                        style={{ opacity: loading ? 0.5 : 1 }}
+                    >
+                        {subscribed ? <Bell size={18} style={{ color: 'hsl(142 76% 36%)' }} /> : <BellOff size={18} />}
+                    </button>
+                )}
 
                 <button className="btn-icon" onClick={toggle} title="Alternar tema">
                     {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}

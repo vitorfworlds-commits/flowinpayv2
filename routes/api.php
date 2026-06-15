@@ -13,6 +13,7 @@ use App\Http\Controllers\Api\AcquirerController;
 use App\Http\Controllers\Api\WebhookConfigController;
 use App\Http\Controllers\Api\PublicChargeController;
 use App\Http\Controllers\Api\KycController;
+use App\Http\Controllers\Api\NotificationController;
 use App\Http\Middleware\AdminMiddleware;
 use Illuminate\Support\Facades\Route;
 
@@ -116,6 +117,12 @@ Route::middleware(['auth:sanctum', 'throttle:120,1'])->group(function () {
     Route::post('/kyc', [KycController::class, 'store']);
     Route::get('/kyc/{document}', [KycController::class, 'show']);
     Route::delete('/kyc/{document}', [KycController::class, 'destroy']);
+
+    // Push Notifications
+    Route::get('/notifications/vapid-key', [NotificationController::class, 'vapidPublicKey']);
+    Route::get('/notifications/status', [NotificationController::class, 'status']);
+    Route::post('/notifications/subscribe', [NotificationController::class, 'subscribe']);
+    Route::post('/notifications/unsubscribe', [NotificationController::class, 'unsubscribe']);
 });
 
 // ========== API EXTERNA (autenticada via X-Api-Key) ==========

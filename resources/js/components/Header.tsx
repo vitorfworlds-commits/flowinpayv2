@@ -1,8 +1,9 @@
-import { Bell, Sun, Moon, Menu, BellOff } from 'lucide-react';
+import { Bell, Sun, Moon, Menu, BellOff, Download } from 'lucide-react';
 import { useTheme } from '@/components/ThemeProvider';
 import { useAuthStore } from '@/store/useAuthStore';
 import { formatBRL } from '@/lib/format';
 import { usePushNotifications } from '@/hooks/usePushNotifications';
+import { useInstallPrompt } from '@/hooks/useInstallPrompt';
 
 interface HeaderProps {
     title: string;
@@ -15,6 +16,7 @@ export default function Header({ title, subtitle, onMobileMenuToggle, right }: H
     const { theme, toggle } = useTheme();
     const { user } = useAuthStore();
     const { supported, subscribed, loading, subscribe, unsubscribe } = usePushNotifications();
+    const { isInstallable, install } = useInstallPrompt();
 
     const balance = parseFloat(user?.balance ?? '0');
 
@@ -54,6 +56,16 @@ export default function Header({ title, subtitle, onMobileMenuToggle, right }: H
                         style={{ opacity: loading ? 0.5 : 1 }}
                     >
                         {subscribed ? <Bell size={18} style={{ color: 'hsl(142 76% 36%)' }} /> : <BellOff size={18} />}
+                    </button>
+                )}
+
+                {isInstallable && (
+                    <button
+                        className="btn-icon"
+                        title="Instalar FlowinPay"
+                        onClick={install}
+                    >
+                        <Download size={18} />
                     </button>
                 )}
 

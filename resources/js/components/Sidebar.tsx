@@ -67,18 +67,16 @@ export default function Sidebar({ collapsed, onToggle, mobileOpen, onMobileToggl
         <aside className={`app-sidebar ${collapsed ? 'collapsed' : 'expanded'} ${mobileOpen ? 'mobile-open' : ''}`}>
             {/* Logo */}
             <div className="sidebar-logo">
-                <div className="gradient-green sidebar-logo-icon">
-                    <span>F</span>
-                </div>
+                <img src="/fav.png" alt="FlowinPay" className="sidebar-logo-img" />
                 {!collapsed && (
-                    <motion.span
-                        className="sidebar-logo-text"
+                    <motion.img
+                        src="/logonome.png"
+                        alt="FlowinPay"
+                        className="sidebar-logo-text-img"
                         initial={{ opacity: 0, x: -8 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ duration: 0.2 }}
-                    >
-                        FlowinPay
-                    </motion.span>
+                    />
                 )}
             </div>
 

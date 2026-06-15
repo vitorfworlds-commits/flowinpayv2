@@ -855,12 +855,11 @@ body {
   width: 56px; height: 56px;
   border-radius: 14px;
   display: flex; align-items: center; justify-content: center;
-  background: linear-gradient(135deg, hsl(142 76% 36%), hsl(142 71% 45%));
-  color: #fff; font-weight: 800; font-size: 24px;
   flex-shrink: 0;
-  box-shadow: 0 4px 20px hsl(142 76% 36% / 0.3);
+  overflow: hidden;
 }
-.auth-logo-sm { width: 42px; height: 42px; border-radius: 12px; font-size: 18px; }
+.auth-logo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.auth-logo-sm { width: 42px; height: 42px; border-radius: 12px; }
 
 /* Hide on desktop */
 @media (min-width: 1024px) {
@@ -1294,23 +1293,25 @@ body {
   gap: 12px;
   min-height: 64px;
 }
-.sidebar-logo-icon {
+.sidebar-logo-img {
   width: 36px;
   height: 36px;
   border-radius: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   flex-shrink: 0;
-  color: #fff;
-  font-weight: 800;
-  font-size: 16px;
+  object-fit: cover;
+  display: block;
 }
 .sidebar-logo-text {
   font-weight: 700;
   font-size: 17px;
   letter-spacing: -0.02em;
   white-space: nowrap;
+}
+.sidebar-logo-text-img {
+  height: 36px;
+  width: 360px;
+  object-fit: contain;
+  object-position: left center;
 }
 .sidebar-user-info { flex: 1; min-width: 0; }
 .sidebar-nav-item-icon { flex-shrink: 0; }

@@ -61,7 +61,7 @@ export default function Login() {
                     animate="show"
                 >
                     <motion.div variants={item} className="auth-logo">
-                        <span>F</span>
+                        <img src="/fav.png" alt="FlowinPay" />
                     </motion.div>
                     <motion.div variants={item}>
                         <h1 style={{ fontSize: 20, fontWeight: 700, letterSpacing: '-0.02em', color: 'hsl(210 40% 96%)' }}>
@@ -128,7 +128,7 @@ export default function Login() {
                     {/* Mobile logo */}
                     <div className="hide-desktop" style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 32 }}>
                         <div className="auth-logo auth-logo-sm">
-                            <span>F</span>
+                            <img src="/fav.png" alt="FlowinPay" />
                         </div>
                         <div>
                             <div style={{ fontSize: 17, fontWeight: 700, letterSpacing: '-0.02em' }}>FlowinPay</div>

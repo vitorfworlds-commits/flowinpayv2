@@ -269,7 +269,7 @@ HTML;
         $path = "disputes/{$filename}";
 
         try {
-            $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadHTML($html)
+            $pdf = app(\Barryvdh\DomPDF\PDF::class)->loadHTML($html)
                 ->setPaper('a4', 'portrait')
                 ->setOptions(['isHtml5ParserEnabled' => true, 'isRemoteEnabled' => true]);
             \Illuminate\Support\Facades\Storage::disk('public')->put($path, $pdf->output());

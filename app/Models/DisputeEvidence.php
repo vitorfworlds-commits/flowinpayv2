@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class DisputeEvidence extends Model
 {
+    protected $table = 'dispute_evidences';
+
     protected $fillable = [
         'dispute_id', 'document_url', 'woovi_url', 'description',
         'correlation_id', 'status', 'error', 'sent_at',

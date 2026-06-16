@@ -72,7 +72,7 @@ export default function Account() {
         } finally { setChangingPw(false); }
     };
 
-    const balance = parseFloat(user?.balance || '0');
+    const balance = Math.max(0, parseFloat(user?.balance || '0') - parseFloat(user?.balance_blocked || '0'));
     const balanceBlocked = parseFloat(user?.balance_blocked || '0');
 
     return (

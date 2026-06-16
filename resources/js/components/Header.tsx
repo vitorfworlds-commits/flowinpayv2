@@ -16,7 +16,7 @@ export default function Header({ title, subtitle, onMobileMenuToggle, right }: H
     const { user } = useAuthStore();
     const { supported, subscribed, loading, subscribe, unsubscribe } = usePushNotifications();
 
-    const balance = parseFloat(user?.balance ?? '0');
+    const balance = Math.max(0, parseFloat(user?.balance ?? '0') - parseFloat(user?.balance_blocked ?? '0'));
 
     return (
         <header className="app-header">

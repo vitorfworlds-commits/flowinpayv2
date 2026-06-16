@@ -63,7 +63,7 @@ export default function Withdrawals() {
   const [creating, setCreating] = useState(false);
   const [cancellingId, setCancellingId] = useState<number | null>(null);
 
-  const balance = parseFloat(user?.balance || '0');
+  const balance = Math.max(0, parseFloat(user?.balance || '0') - parseFloat(user?.balance_blocked || '0'));
   const [feeConfig, setFeeConfig] = useState({ withdrawal_fee: 2, minimum_withdrawal: 5, maximum_withdrawal: 1000 });
   const parsedAmount = parseFloat(createAmount.replace(/[^\d.,]/g, '').replace(',', '.')) || 0;
   const netAmount = Math.max(0, parsedAmount - feeConfig.withdrawal_fee);

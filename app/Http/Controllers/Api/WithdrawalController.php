@@ -111,7 +111,7 @@ class WithdrawalController extends Controller
         } catch (\App\Exceptions\InsufficientBalanceException $e) {
             return response()->json([
                 'message' => 'Saldo insuficiente',
-                'current_balance' => (float) $request->user()->fresh()->balance,
+                'current_balance' => round((float) $request->user()->fresh()->balance - (float) $request->user()->fresh()->balance_blocked, 2),
                 'requested' => $value,
             ], 422);
         }

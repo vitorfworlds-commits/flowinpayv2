@@ -565,6 +565,26 @@ class WebhookController extends Controller
             ]
         );
 
+        // Block balance to prevent withdrawal of disputed amount
+        try {
+            DB::transaction(function () use ($dispute) {
+                $user = \App\Models\User::lockForUpdate()->find($dispute->user_id);
+                if ($user) {
+                    $user->increment('balance_blocked', $dispute->amount);
+                    Log::info('Balance blocked for dispute', [
+                        'user_id' => $user->id,
+                        'dispute_id' => $dispute->id,
+                        'amount' => $dispute->amount,
+                    ]);
+                }
+            });
+        } catch (\Throwable $e) {
+            Log::error('Failed to block balance for dispute', [
+                'dispute_id' => $dispute->id,
+                'error' => $e->getMessage(),
+            ]);
+        }
+
         // Auto-defend: dispatch job to generate dossier and send to Woovi
         try {
             SendDisputeDossier::dispatch($dispute->id);
@@ -595,7 +615,7 @@ class WebhookController extends Controller
             ]);
         }
 
-        // Disputa aceita = cliente ganhou = estornar saldo
+        // Disputa aceita = estorno confirmado = desbloquear saldo + estornar
         if ($correlationId) {
             DB::transaction(function () use ($acquirer, $data, $correlationId, $externalId) {
                 $charge = Charge::where('correlation_id', $correlationId)
@@ -609,9 +629,14 @@ class WebhookController extends Controller
                 $user = \App\Models\User::lockForUpdate()->findOrFail($charge->user_id);
                 $netValue = $charge->value - $charge->fee_value;
 
+                // Desbloquear o saldo que foi bloqueado pela disputa
+                $dispute = Dispute::where('external_id', $externalId)->first();
+                $blockedAmount = $dispute?->amount ?? $netValue;
+
                 $balanceBefore = $user->balance;
                 $user->forceFill([
                     'balance' => $user->balance - $netValue,
+                    'balance_blocked' => max(0, $user->balance_blocked - $blockedAmount),
                 ])->save();
 
                 $charge->update([
@@ -656,6 +681,29 @@ class WebhookController extends Controller
                 'status' => 'rejected',
                 'resolved_at' => now(),
                 'resolution' => 'Contestação rejeitada - pagamento mantido',
+            ]);
+        }
+
+        // Desbloquear saldo — disputa rejeitada = pagamento mantido
+        try {
+            if ($externalId) {
+                $dispute = Dispute::where('external_id', $externalId)->first();
+                if ($dispute && $dispute->user_id) {
+                    DB::transaction(function () use ($dispute) {
+                        $user = \App\Models\User::lockForUpdate()->find($dispute->user_id);
+                        if ($user) {
+                            $user->decrement('balance_blocked', $dispute->amount);
+                        }
+                    });
+                    Log::info('Balance unblocked - dispute rejected', [
+                        'user_id' => $dispute->user_id,
+                        'dispute_id' => $dispute->id,
+                    ]);
+                }
+            }
+        } catch (\Throwable $e) {
+            Log::error('Failed to unblock balance for rejected dispute', [
+                'error' => $e->getMessage(),
             ]);
         }
 

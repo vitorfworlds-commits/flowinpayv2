@@ -59,9 +59,11 @@ class WithdrawalController extends Controller
             $withdrawal = DB::transaction(function () use ($request, $value, $validated, $acquirer, $feeValue, $netValue) {
                 $user = User::lockForUpdate()->findOrFail($request->user()->id);
 
-                if ($user->balance < $value) {
+                $availableBalance = round($user->balance - $user->balance_blocked, 2);
+
+                if ($availableBalance < $value) {
                     throw new \App\Exceptions\InsufficientBalanceException(
-                        $user->balance, $value
+                        $availableBalance, $value
                     );
                 }
 

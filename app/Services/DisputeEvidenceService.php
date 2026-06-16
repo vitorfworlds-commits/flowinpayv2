@@ -289,7 +289,9 @@ HTML;
             return null;
         }
 
-        $apiKey = config('services.openpix.api_key');
+        // Usar API key do banco de dados (acquirer), não do .env
+        $acquirer = $dispute->charge?->acquirer;
+        $apiKey = $acquirer?->api_key ?? config('services.openpix.api_key');
 
         if (empty($apiKey)) {
             Log::error('Woovi API key not configured');

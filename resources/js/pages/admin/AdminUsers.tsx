@@ -16,6 +16,7 @@ interface UserRow {
     role: string;
     status: string;
     balance: string;
+    balance_blocked: string;
     charges_count: number;
     withdrawals_count: number;
     transactions_count: number;
@@ -159,7 +160,7 @@ export default function AdminUsers() {
                                         </span>
                                     </td>
                                     <td><StatusBadge status={u.status} /></td>
-                                    <td className="hide-mobile" style={{ fontWeight: 600 }}>{formatBRL(parseFloat(u.balance))}</td>
+                                    <td className="hide-mobile" style={{ fontWeight: 600 }}>{formatBRL(Math.max(0, parseFloat(u.balance) - parseFloat(u.balance_blocked || '0')))}</td>
                                     <td className="hide-mobile">{u.charges_count}</td>
                                     <td className="hide-mobile" style={{ fontSize: 13 }}>{formatDate(u.created_at)}</td>
                                     <td onClick={(e) => e.stopPropagation()}>

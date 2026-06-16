@@ -116,7 +116,7 @@ export default function AdminUserDetail() {
 
             <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }} style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 16, marginBottom: 24 }}>
                 {[
-                    { icon: DollarSign, label: 'Saldo', value: formatBRL(parseFloat(user.balance)), color: 'hsl(142 76% 36%)' },
+                    { icon: DollarSign, label: 'Saldo disponível', value: formatBRL(Math.max(0, parseFloat(user.balance) - parseFloat(user.balance_blocked || '0'))), color: 'hsl(142 76% 36%)' },
                     { icon: Receipt, label: 'Cobranças', value: String(user.charges_count), color: 'hsl(217 91% 60%)' },
                     { icon: ArrowDownToLine, label: 'Saques', value: String(user.withdrawals_count), color: 'hsl(38 92% 50%)' },
                     { icon: FileText, label: 'Transações', value: String(user.transactions_count), color: 'hsl(262 83% 58%)' },

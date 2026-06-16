@@ -265,11 +265,14 @@ HTML;
     {
         // Unpredictable filename with HMAC — prevents enumeration
         $token = hash_hmac('sha256', $disputeId . '|' . now()->timestamp, config('app.key'));
-        $filename = "dossier_{$token}.html";
+        $filename = "dossier_{$token}.pdf";
         $path = "disputes/{$filename}";
 
         try {
-            \Illuminate\Support\Facades\Storage::disk('public')->put($path, $html);
+            $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadHTML($html)
+                ->setPaper('a4', 'portrait')
+                ->setOptions(['isHtml5ParserEnabled' => true, 'isRemoteEnabled' => true]);
+            \Illuminate\Support\Facades\Storage::disk('public')->put($path, $pdf->output());
             return \Illuminate\Support\Facades\Storage::disk('public')->url($path);
         } catch (\Throwable $e) {
             Log::error('Dossier upload failed', ['error' => $e->getMessage()]);

@@ -73,11 +73,14 @@ class TransactionController extends Controller
     {
         $user = $request->user();
 
+        $balance = (float) $user->balance;
+        $blocked = (float) $user->balance_blocked;
+
         return response()->json([
             'balance' => [
-                'available' => (float) $user->balance,
-                'blocked' => (float) $user->balance_blocked,
-                'total' => round((float) $user->balance + (float) $user->balance_blocked, 2),
+                'available' => round($balance - $blocked, 2),
+                'blocked' => $blocked,
+                'total' => $balance,
             ],
         ]);
     }

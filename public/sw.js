@@ -1,4 +1,4 @@
-const CACHE_NAME = 'flowinpay-v1';
+const CACHE_NAME = 'flowinpay-v2';
 const STATIC_ASSETS = ['/dashboard', '/manifest.json', '/icons/icon-192.png', '/icons/icon-512.png'];
 
 self.addEventListener('install', (event) => {

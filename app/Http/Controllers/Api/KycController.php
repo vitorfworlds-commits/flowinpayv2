@@ -27,9 +27,9 @@ class KycController extends Controller
     public function store(Request $request): JsonResponse
     {
         $request->validate([
-            'rg_frente' => 'required|file|max:' . (self::MAX_SIZE / 1024),
-            'rg_verso' => 'required|file|max:' . (self::MAX_SIZE / 1024),
-            'selfie' => 'required|file|max:' . (self::MAX_SIZE / 1024),
+            'rg_frente' => 'required|file|mimes:jpg,jpeg,png,pdf|max:' . (self::MAX_SIZE / 1024),
+            'rg_verso' => 'required|file|mimes:jpg,jpeg,png,pdf|max:' . (self::MAX_SIZE / 1024),
+            'selfie' => 'required|file|mimes:jpg,jpeg,png,pdf|max:' . (self::MAX_SIZE / 1024),
         ]);
 
         $user = $request->user();
@@ -62,7 +62,7 @@ class KycController extends Controller
             $file = $request->file($field);
             $path = $file->store("kyc/{$userId}", 'local');
             $data["{$field}_path"] = $path;
-            $data["{$field}_name"] = $file->getClientOriginalName();
+            $data["{$field}_name"] = preg_replace('/[^a-zA-Z0-9._-]/', '', $file->getClientOriginalName());
         }
 
         $document = KycDocument::create($data);

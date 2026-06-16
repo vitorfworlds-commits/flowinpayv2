@@ -33,7 +33,7 @@ class ChargeController extends Controller
 
         // Busca por texto
         if ($request->filled('search')) {
-            $search = '%' . $request->search . '%';
+            $search = '%' . addcslashes($request->search, '%_') . '%';
             $query->where(function ($q) use ($search) {
                 $q->where('description', 'like', $search)
                   ->orWhere('customer_name', 'like', $search)
@@ -59,7 +59,7 @@ class ChargeController extends Controller
             ->selectRaw('COALESCE(SUM(value), 0) as totalAmount')
             ->when($request->filled('status'), fn($q) => $q->where('status', $request->status))
             ->when($request->filled('search'), function ($q) use ($request) {
-                $s = '%' . $request->search . '%';
+                $s = '%' . addcslashes($request->search, '%_') . '%';
                 $q->where(fn($q2) => $q2->where('description', 'like', $s)->orWhere('customer_name', 'like', $s)->orWhere('correlation_id', 'like', $s)->orWhere('id', 'like', $s));
             })
             ->when($request->filled('start_date'), fn($q) => $q->whereDate('created_at', '>=', $request->start_date))
@@ -193,7 +193,7 @@ class ChargeController extends Controller
 
             return response()->json([
                 'message' => 'Erro ao criar cobrança na adquirente',
-                'error' => config('app.debug') ? $e->getMessage() : null,
+                'error' => null,
             ], 500);
         }
     }

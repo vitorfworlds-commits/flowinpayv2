@@ -1,6 +1,6 @@
 {
   "resources/css/app.css": {
-    "file": "assets/app-B06_itua.css",
+    "file": "assets/app-SBl15VsZ.css",
     "src": "resources/css/app.css",
     "isEntry": true,
     "name": "app",
@@ -9,12 +9,12 @@
     ]
   },
   "resources/js/App.tsx": {
-    "file": "assets/App-5Qyi4Cue.js",
+    "file": "assets/App-CEJI5bYt.js",
     "name": "App",
     "src": "resources/js/App.tsx",
     "isEntry": true,
     "css": [
-      "assets/app-B06_itua.css"
+      "assets/app-SBl15VsZ.css"
     ]
   }
 }

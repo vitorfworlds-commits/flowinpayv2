@@ -212,7 +212,7 @@ class WithdrawalController extends Controller
 
             return response()->json([
                 'message' => 'Erro ao processar saque na adquirente',
-                'error' => config('app.debug') ? $e->getMessage() : null,
+                'error' => null,
             ], 500);
         }
     }

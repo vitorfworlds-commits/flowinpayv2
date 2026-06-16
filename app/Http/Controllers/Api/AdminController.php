@@ -255,7 +255,7 @@ class AdminController extends Controller
             $query->where('status', $request->status);
         }
         if ($request->filled('search')) {
-            $s = '%' . $request->search . '%';
+            $s = '%' . addcslashes($request->search, '%_') . '%';
             $query->where(fn ($q) => $q->where('description', 'like', $s)->orWhere('correlation_id', 'like', $s));
         }
 

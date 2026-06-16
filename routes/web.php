@@ -23,5 +23,7 @@ Route::get('/admin/kyc', fn () => view('welcome'));
 Route::get('/admin/audit-logs', fn () => view('welcome'));
 Route::get('/login', fn () => view('welcome'));
 Route::get('/register', fn () => view('welcome'));
+Route::get('/forgot-password', fn () => view('welcome'));
+Route::get('/reset-password', fn () => view('welcome'));
 Route::get('/pay/{path?}', fn () => view('welcome'))->where('path', '.*');
 Route::get('/docs', fn () => view('welcome'));

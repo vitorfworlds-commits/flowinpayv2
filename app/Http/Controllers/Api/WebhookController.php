@@ -505,17 +505,38 @@ class WebhookController extends Controller
         ]);
 
         $disputeData = $data['dispute'] ?? $data;
+        $endToEndId = $disputeData['endToEndId'] ?? null;
 
-        // Find charge to get user_id
+        // Find charge to get user_id — try multiple strategies
         $charge = null;
+
+        // 1. Try by correlation_id (works when webhook has it)
         if ($correlationId) {
             $charge = Charge::where('correlation_id', $correlationId)
                 ->where('acquirer_id', $acquirer->id)
                 ->first();
+        }
 
-            if ($charge) {
-                $charge->update(['acquirer_response' => json_encode($data)]);
-            }
+        // 2. Try by endToEndId in acquirer_response
+        if (!$charge && $endToEndId) {
+            $safeId = str_replace(['%', '_'], ['\\%', '\\_'], $endToEndId);
+            $charge = Charge::where('acquirer_response', 'like', "%{$safeId}%")
+                ->where('acquirer_id', $acquirer->id)
+                ->latest()
+                ->first();
+        }
+
+        if (!$charge) {
+            Log::error('Dispute created but charge not found — skipping dispute creation', [
+                'correlation_id' => $correlationId,
+                'endToEndId' => $endToEndId,
+                'acquirer' => $acquirer->slug,
+            ]);
+            return;
+        }
+
+        if ($correlationId) {
+            $charge->update(['acquirer_response' => json_encode($data)]);
         }
 
         // Upsert dispute record
@@ -532,11 +553,11 @@ class WebhookController extends Controller
         $dispute = Dispute::updateOrCreate(
             ['external_id' => $externalId],
             [
-                'user_id' => $charge?->user_id,
-                'charge_id' => $charge?->id,
+                'user_id' => $charge->user_id,
+                'charge_id' => $charge->id,
                 'type' => ($disputeData['type'] ?? 'MED') === 'CHARGEBACK' ? 'chargeback' : 'med',
                 'status' => $status,
-                'amount' => ($disputeData['value'] ?? $charge?->value ?? 0) / (isset($disputeData['value']) ? 100 : 1),
+                'amount' => ($disputeData['value'] ?? $charge->value ?? 0) / (isset($disputeData['value']) ? 100 : 1),
                 'reason' => $disputeData['disputeReason'] ?? null,
                 'description' => "Contestação via {$acquirer->name}",
                 'acquirer' => $acquirer->name,

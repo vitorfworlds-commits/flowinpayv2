@@ -526,6 +526,33 @@ class WebhookController extends Controller
                 ->first();
         }
 
+        // 2.5. Try by endToEndId via OpenPix API (Woovi doesn't return endToEndId in payment webhook)
+        if (!$charge && $endToEndId) {
+            try {
+                $openPix = app(\App\Services\Acquirers\OpenPixService::class);
+                $chargeData = $openPix->getChargeByEndToEndId($endToEndId);
+                if ($chargeData) {
+                    $correlationIdFromApi = $chargeData['correlationID'] ?? $chargeData['identifier'] ?? null;
+                    if ($correlationIdFromApi) {
+                        $charge = Charge::where('correlation_id', $correlationIdFromApi)
+                            ->where('acquirer_id', $acquirer->id)
+                            ->first();
+                    }
+                }
+                if ($charge) {
+                    Log::info('Dispute charge found via OpenPix API by endToEndId', [
+                        'endToEndId' => $endToEndId,
+                        'charge_id' => $charge->id,
+                    ]);
+                }
+            } catch (\Throwable $e) {
+                Log::error('OpenPix API charge lookup by endToEndId failed', [
+                    'endToEndId' => $endToEndId,
+                    'error' => $e->getMessage(),
+                ]);
+            }
+        }
+
         // 3. Try by value + acquirer (most recent paid charge)
         if (!$charge) {
             $disputeValue = ($disputeData['value'] ?? 0) / 100;

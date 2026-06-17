@@ -526,6 +526,26 @@ class WebhookController extends Controller
                 ->first();
         }
 
+        // 3. Try by value + acquirer (most recent paid charge)
+        if (!$charge) {
+            $disputeValue = ($disputeData['value'] ?? 0) / 100;
+            if ($disputeValue > 0) {
+                $charge = Charge::where('value', $disputeValue)
+                    ->where('acquirer_id', $acquirer->id)
+                    ->where('status', 'paid')
+                    ->latest()
+                    ->first();
+
+                if ($charge) {
+                    Log::warning('Dispute charge matched by value (fuzzy)', [
+                        'dispute_value' => $disputeValue,
+                        'charge_id' => $charge->id,
+                        'endToEndId' => $endToEndId,
+                    ]);
+                }
+            }
+        }
+
         if (!$charge) {
             Log::error('Dispute created but charge not found — skipping dispute creation', [
                 'correlation_id' => $correlationId,

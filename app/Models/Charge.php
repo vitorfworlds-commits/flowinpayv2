@@ -22,6 +22,7 @@ class Charge extends Model
         'webhook_secret',
         'status',
         'pix_key',
+        'end_to_end_id',
         'br_code',
         'payment_link_url',
         'qr_code_image',
@@ -48,6 +49,7 @@ class Charge extends Model
             'additional_info' => 'array',
             'paid_at' => 'datetime',
             'expires_at' => 'datetime',
+            'end_to_end_id' => 'string',
         ];
     }
 

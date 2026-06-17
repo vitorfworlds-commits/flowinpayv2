@@ -78,6 +78,32 @@ class OpenPixService implements AcquirerInterface
         return $response->json();
     }
 
+    public function syncEndToEndId(string $correlationId): ?string
+    {
+        try {
+            $charge = $this->getCharge($correlationId);
+            $endToEndId = $charge['endToEndId'] ??
+                          $charge['charge']['endToEndId'] ??
+                          $charge['pix']['endToEndId'] ??
+                          $charge['paymentMethods']['pix']['endToEndId'] ?? null;
+
+            if ($endToEndId) {
+                Log::info('EndToEndId synced', [
+                    'correlation_id' => $correlationId,
+                    'endToEndId' => $endToEndId,
+                ]);
+            }
+
+            return $endToEndId;
+        } catch (\Throwable $e) {
+            Log::error('Failed to sync endToEndId', [
+                'correlation_id' => $correlationId,
+                'error' => $e->getMessage(),
+            ]);
+            return null;
+        }
+    }
+
     public function listCharges(int $page = 1, int $limit = 50): array
     {
         $response = Http::withHeaders($this->headers())

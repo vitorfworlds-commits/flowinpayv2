@@ -230,6 +230,13 @@ class WebhookController extends Controller
             // Lock no USER
             $user = \App\Models\User::lockForUpdate()->findOrFail($charge->user_id);
 
+            // Sync endToEndId from Woovi API
+            $openPix = app(\App\Services\Acquirers\OpenPixService::class);
+            $endToEndId = $openPix->syncEndToEndId($charge->correlation_id);
+            if ($endToEndId) {
+                $charge->end_to_end_id = $endToEndId;
+            }
+
             $charge->update([
                 'status' => 'paid',
                 'paid_at' => $data['charge']['paidAt'] ?? now()->toDateTimeString(),

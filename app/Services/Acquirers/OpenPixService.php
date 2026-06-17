@@ -78,27 +78,6 @@ class OpenPixService implements AcquirerInterface
         return $response->json();
     }
 
-    public function getChargeByEndToEndId(string $endToEndId): ?array
-    {
-        $response = Http::withHeaders($this->headers())
-            ->timeout(30)
-            ->get("{$this->baseUrl}/api/v1/charge", [
-                'endToEndId' => $endToEndId,
-            ]);
-
-        if ($response->failed()) {
-            Log::error('OpenPix get charge by endToEndId failed', [
-                'status' => $response->status(),
-                'response' => $response->body(),
-                'endToEndId' => $endToEndId,
-            ]);
-            return null;
-        }
-
-        $data = $response->json();
-        return $data['data'] ?? $data['charges'] ?? null;
-    }
-
     public function listCharges(int $page = 1, int $limit = 50): array
     {
         $response = Http::withHeaders($this->headers())
